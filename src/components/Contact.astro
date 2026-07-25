@@ -1,0 +1,238 @@
+---
+import { COPY, waGeneral, type Lang } from "../data/copy";
+import { PHONE_TEL, PHONE_DISPLAY, waLink } from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+---
+
+<section class="ct grain" id="contact">
+  <div class="ct__in shell">
+    <p class="eyebrow">{t.contactEyebrow}</p>
+    <h2 class="ct__h2" data-ct-h2>{t.contactHeading}</h2>
+    <p class="ct__line lede">{t.contactLine}</p>
+
+    <div class="ct__cluster" data-ct-cluster>
+      <a
+        class="ct__card ct__card--wa"
+        href={waLink(waGeneral)}
+        target="_blank"
+        rel="noopener"
+        data-magnet
+      >
+        <span class="ct__card-label">{t.contactWaLabel}</span>
+        <span class="ct__card-val">{t.contactWaValue}</span>
+        <svg class="ct__card-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12.04 2C6.6 2 2.18 6.42 2.18 11.86c0 1.9.53 3.68 1.46 5.2L2 22l5.09-1.6a9.8 9.8 0 0 0 4.95 1.33h.01c5.44 0 9.86-4.42 9.86-9.86S17.48 2 12.04 2Zm5.77 14.03c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11a15.4 15.4 0 0 1-1.65-.62c-2.9-1.26-4.8-4.2-4.95-4.4-.14-.2-1.19-1.58-1.19-3.02 0-1.43.75-2.13 1.02-2.42.27-.29.58-.36.78-.36h.56c.18 0 .42-.07.66.5.24.59.82 2.02.89 2.17.07.14.12.31.02.5-.1.2-.15.32-.29.49-.15.17-.31.38-.44.51-.15.14-.3.3-.13.59.17.29.76 1.25 1.62 2.02 1.12.99 2.06 1.3 2.35 1.45.29.14.46.12.63-.07.17-.2.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.69.8 1.98.94.29.15.48.22.55.34.07.12.07.68-.17 1.36Z" />
+        </svg>
+      </a>
+
+      <a class="ct__card ct__card--call" href={`tel:${PHONE_TEL}`} data-magnet>
+        <span class="ct__card-label">{t.contactPhoneLabel}</span>
+        <span class="ct__card-val" dir="ltr">{PHONE_DISPLAY}</span>
+        <svg class="ct__card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.2 2 2 0 0 1 6.5 3Z" stroke-linejoin="round"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ct {
+    position: relative;
+    background: var(--surface);
+    padding-block: clamp(4rem, 10vw, 9rem);
+    overflow: clip;
+    isolation: isolate;
+  }
+  /* Slow red bloom behind the cluster — the only element on the page that
+     glows, because it is the only one that produces revenue. */
+  .ct::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset-inline-start: 50%;
+    inset-block-end: -30%;
+    inline-size: min(120vw, 1000px);
+    aspect-ratio: 1;
+    translate: -50% 0;
+    background: radial-gradient(circle, rgba(225, 29, 51, 0.22), transparent 62%);
+    animation: bloom 7s ease-in-out infinite alternate;
+  }
+  @keyframes bloom {
+    from {
+      opacity: 0.55;
+      scale: 0.92;
+    }
+    to {
+      opacity: 1;
+      scale: 1.06;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ct::before {
+      animation-duration: 18s;
+    }
+  }
+
+  .ct__h2 {
+    margin-block: 0.7rem clamp(0.8rem, 2vw, 1.2rem);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 125%;
+    font-size: clamp(3rem, 13vw, 9rem);
+    line-height: 0.85;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  :root[dir="rtl"] .ct__h2 {
+    font-family: var(--font-body);
+    font-stretch: normal;
+    text-transform: none;
+    line-height: 1.1;
+  }
+
+  .ct__line {
+    font-size: var(--fs-h3);
+    max-inline-size: 26ch;
+    color: var(--text);
+  }
+
+  .ct__cluster {
+    display: grid;
+    gap: 0.8rem;
+    margin-block-start: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .ct__card {
+    position: relative;
+    display: grid;
+    gap: 0.25rem;
+    align-content: center;
+    min-block-size: 132px;
+    padding: clamp(1.2rem, 3vw, 2rem);
+    border-radius: var(--radius);
+    overflow: hidden;
+    isolation: isolate;
+    will-change: transform;
+    transition: transform 0.3s var(--ease);
+  }
+  .ct__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: currentColor;
+    opacity: 0.12;
+    transition: opacity 0.4s var(--ease);
+  }
+  .ct__card:hover::before {
+    opacity: 0.2;
+  }
+  .ct__card--wa {
+    background: #1d9c53;
+    color: var(--text);
+  }
+  .ct__card--wa::before {
+    background: #fff;
+    opacity: 0;
+  }
+  .ct__card--wa:hover::before {
+    opacity: 0.14;
+  }
+  .ct__card--call {
+    background: transparent;
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .ct__card--call::before {
+    background: var(--accent);
+    opacity: 0;
+  }
+  .ct__card--call:hover::before {
+    opacity: 1;
+  }
+  .ct__card:active {
+    transform: scale(0.98);
+  }
+
+  .ct__card-label {
+    font-size: var(--fs-eyebrow);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  :root[dir="rtl"] .ct__card-label {
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+  .ct__card-val {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-stretch: 112%;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.35rem, 3.5vw, 2.1rem);
+    letter-spacing: -0.01em;
+  }
+  .ct__card-icon {
+    position: absolute;
+    inset-block-end: -0.6rem;
+    inset-inline-end: -0.6rem;
+    inline-size: clamp(4.5rem, 11vw, 7rem);
+    block-size: auto;
+    opacity: 0.16;
+    transition: transform 0.55s var(--ease);
+  }
+  .ct__card:hover .ct__card-icon {
+    transform: translate(-6px, -6px) rotate(-8deg);
+  }
+
+  @media (min-width: 720px) {
+    .ct__cluster {
+      grid-template-columns: 1fr 1fr;
+      max-inline-size: 46rem;
+    }
+  }
+
+  html.js .ct:not(.is-in) [data-ct-h2],
+  html.js .ct:not(.is-in) .ct__line,
+  html.js .ct:not(.is-in) .ct__card {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { animate, inView, stagger } from "motion";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const section = document.querySelector<HTMLElement>(".ct");
+
+  if (section) {
+    inView(
+      section,
+      () => {
+        section.classList.add("is-in");
+        animate(
+          section.querySelectorAll("[data-ct-h2], .ct__line"),
+          { opacity: [0, 1], transform: ["translateY(24px)", "translateY(0px)"] },
+          { duration: reduce ? 0.25 : 0.7, delay: stagger(reduce ? 0.03 : 0.1), ease: "easeOut" },
+        );
+        animate(
+          section.querySelectorAll(".ct__card"),
+          { opacity: [0, 1], transform: ["translateY(30px) scale(0.97)", "translateY(0px) scale(1)"] },
+          {
+            duration: reduce ? 0.25 : 0.7,
+            delay: stagger(reduce ? 0.03 : 0.11, { startDelay: reduce ? 0.05 : 0.2 }),
+            ease: [0.16, 1, 0.3, 1],
+          },
+        );
+      },
+      { amount: 0.3 },
+    );
+  }
+</script>

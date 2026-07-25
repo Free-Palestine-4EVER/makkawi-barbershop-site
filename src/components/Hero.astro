@@ -1,0 +1,499 @@
+---
+import { Image } from "astro:assets";
+import { photos } from "../data/photos";
+import { COPY, waGeneral, type Lang } from "../data/copy";
+import { PHONE_TEL, PHONE_DISPLAY, waLink, RATING, REVIEW_COUNT } from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+const letters = "MAKKAWI".split("");
+---
+
+<section class="hero grain" id="hero">
+  <div class="hero__plate" data-hero-plate>
+    <div class="hero__plate-frame">
+      <Image
+        class="hero__img"
+        src={photos.storefront}
+        alt={t.alts.storefront}
+        widths={[540, 900, 1280]}
+        sizes="(min-width: 960px) 50vw, 100vw"
+        loading="eager"
+        fetchpriority="high"
+        format="webp"
+        quality={78}
+      />
+      <span class="hero__plate-wash" aria-hidden="true"></span>
+      <span class="hero__plate-edge" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div class="hero__grid shell">
+    <div class="hero__type">
+      <p class="eyebrow hero__eyebrow">{t.heroEyebrow}</p>
+
+      <h1 class="hero__h1">
+        <span class="hero__word" aria-hidden="true">
+          {
+            letters.map((ch) => (
+              <span class="hero__letter-mask">
+                <span class="hero__letter">{ch}</span>
+              </span>
+            ))
+          }
+        </span>
+        <span class="hero__sub-word">BARBERSHOP</span>
+        <span class="sr-only">MAKKAWI BARBERSHOP</span>
+      </h1>
+
+      <p class="hero__lockup" lang="ar" dir="rtl">{t.heroLockup}</p>
+
+      <span class="hero__rule" aria-hidden="true"></span>
+
+      <p class="hero__tagline">{t.heroTagline}</p>
+      <p class="hero__lede lede">{t.heroSub}</p>
+
+      <div class="hero__cta" data-magnetic-group>
+        <a class="btn btn--wa" href={waLink(waGeneral)} data-magnet target="_blank" rel="noopener">
+          <svg class="btn__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12.04 2C6.6 2 2.18 6.42 2.18 11.86c0 1.9.53 3.68 1.46 5.2L2 22l5.09-1.6a9.8 9.8 0 0 0 4.95 1.33h.01c5.44 0 9.86-4.42 9.86-9.86S17.48 2 12.04 2Zm5.77 14.03c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11a15.4 15.4 0 0 1-1.65-.62c-2.9-1.26-4.8-4.2-4.95-4.4-.14-.2-1.19-1.58-1.19-3.02 0-1.43.75-2.13 1.02-2.42.27-.29.58-.36.78-.36h.56c.18 0 .42-.07.66.5.24.59.82 2.02.89 2.17.07.14.12.31.02.5-.1.2-.15.32-.29.49-.15.17-.31.38-.44.51-.15.14-.3.3-.13.59.17.29.76 1.25 1.62 2.02 1.12.99 2.06 1.3 2.35 1.45.29.14.46.12.63-.07.17-.2.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.69.8 1.98.94.29.15.48.22.55.34.07.12.07.68-.17 1.36Z" />
+          </svg>
+          {t.ctaWhatsapp}
+        </a>
+        <a class="btn btn--ghost" href={`tel:${PHONE_TEL}`} data-magnet>
+          <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.2 2 2 0 0 1 6.5 3Z" stroke-linejoin="round"></path>
+          </svg>
+          {t.ctaCall}
+        </a>
+      </div>
+
+      <p class="hero__rating">
+        <span class="hero__rating-num numeral">{RATING}</span>
+        <span class="hero__rating-txt">
+          <span class="hero__stars" aria-hidden="true">★★★★★</span>
+          {t.heroRating}
+        </span>
+      </p>
+      <p class="hero__phone"><a class="link" href={`tel:${PHONE_TEL}`} dir="ltr">{PHONE_DISPLAY}</a></p>
+    </div>
+  </div>
+
+  <span class="hero__spot" aria-hidden="true"></span>
+  <a class="hero__scroll" href="#about" aria-hidden="true" tabindex="-1">
+    <span>{t.heroScroll}</span>
+    <span class="hero__scroll-line"></span>
+  </a>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-block-size: 100svh;
+    display: flex;
+    align-items: center;
+    overflow: clip;
+    /* On phones the bottom padding reserves the band the storefront plate
+       occupies, so the plate never sits under the CTAs or the rating. */
+    padding-block: clamp(5.5rem, 12vh, 9rem) 33vh;
+    isolation: isolate;
+  }
+  @media (min-width: 960px) {
+    .hero {
+      padding-block-end: clamp(3.5rem, 8vh, 6rem);
+    }
+  }
+
+  /* cursor spotlight (desktop only, driven by --mx/--my) */
+  .hero__spot {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      420px circle at var(--mx, 50%) var(--my, 40%),
+      rgba(225, 29, 51, 0.16),
+      transparent 70%
+    );
+    transition: opacity 0.6s var(--ease);
+  }
+  .hero.has-pointer .hero__spot {
+    opacity: 1;
+  }
+
+  .hero__grid {
+    position: relative;
+    z-index: 2;
+    inline-size: min(100%, 1440px);
+  }
+  .hero__type {
+    max-inline-size: 46rem;
+  }
+
+  .hero__eyebrow {
+    margin-block-end: clamp(1rem, 2.5vw, 1.8rem);
+  }
+
+  .hero__h1 {
+    margin: 0;
+    line-height: 0.85;
+  }
+  .hero__word {
+    display: flex;
+    /* The wordmark is split into one span per letter for the kinetic reveal.
+       Without this, RTL flex order renders it backwards ("IWAKKAM"). */
+    direction: ltr;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 125%;
+    font-size: var(--fs-display);
+    letter-spacing: -0.02em;
+    line-height: 0.82;
+    color: var(--text);
+  }
+  .hero__letter-mask {
+    display: inline-block;
+    overflow: hidden;
+    padding-block-end: 0.06em;
+  }
+  .hero__letter {
+    display: inline-block;
+    will-change: transform;
+  }
+  .hero__sub-word {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-stretch: 108%;
+    font-size: calc(var(--fs-display) * 0.235);
+    letter-spacing: 0.3em;
+    line-height: 1.4;
+    color: var(--text);
+    margin-inline-start: 0.18em;
+  }
+
+  .hero__lockup {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: calc(var(--fs-display) * 0.4);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--accent-2);
+    margin-block-start: 0.1em;
+  }
+
+  .hero__rule {
+    display: block;
+    block-size: 2px;
+    inline-size: min(100%, 30rem);
+    background: linear-gradient(
+      to var(--rule-dir, right),
+      var(--accent),
+      rgba(225, 29, 51, 0)
+    );
+    margin-block: clamp(1.2rem, 3vw, 2rem);
+    transform-origin: var(--o-start);
+  }
+  html.js .hero:not(.is-in) .hero__rule {
+    transform: scaleX(0);
+  }
+  :root[dir="rtl"] .hero__rule {
+    --rule-dir: left;
+  }
+
+  .hero__tagline {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: var(--fs-h3);
+    line-height: 1.35;
+    max-inline-size: 24ch;
+  }
+  .hero__lede {
+    margin-block-start: 0.8rem;
+    max-inline-size: 42ch;
+    font-size: var(--fs-body);
+  }
+
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: clamp(1.5rem, 3.5vw, 2.4rem);
+  }
+
+  .hero__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-block-start: clamp(1.6rem, 3.5vw, 2.6rem);
+  }
+  .hero__rating-num {
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    color: var(--text);
+  }
+  .hero__rating-txt {
+    display: grid;
+    gap: 0.15rem;
+    font-size: var(--fs-small);
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .hero__stars {
+    color: var(--accent-2);
+    letter-spacing: 0.14em;
+    font-size: 0.85rem;
+  }
+  .hero__phone {
+    margin-block-start: 0.7rem;
+    font-size: var(--fs-small);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- the angled storefront plate ---- */
+  /* The positioning box is what motion animates; the rotation lives on the
+     inner frame so an inline transform can never clobber the tilt. */
+  .hero__plate {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    inset-block-end: -4vh;
+    inset-inline: -8%;
+    inline-size: 116%;
+    block-size: 34vh;
+    will-change: translate, opacity;
+  }
+  .hero__plate-frame {
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: hidden;
+    background: var(--surface);
+    transform: rotate(var(--tilt));
+  }
+  .hero__img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: 50% 32%;
+    will-change: transform;
+    animation: kenburns 34s var(--ease) infinite alternate;
+  }
+  @keyframes kenburns {
+    from {
+      transform: scale(1) translate3d(0, 0, 0);
+    }
+    to {
+      transform: scale(1.09) translate3d(-1.5%, -1%, 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__img {
+      animation-duration: 60s;
+    }
+  }
+  .hero__plate-wash {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to var(--wash-dir, left), rgba(18, 16, 15, 0.95), rgba(18, 16, 15, 0.1) 62%),
+      linear-gradient(to top, rgba(18, 16, 15, 0.9), transparent 55%);
+  }
+  /* Mirror the tilt in RTL so the composition reads the same both ways. */
+  :root[dir="rtl"] .hero__plate-frame {
+    transform: rotate(3deg);
+  }
+  :root[dir="rtl"] .hero__plate-wash {
+    --wash-dir: right;
+  }
+  .hero__plate-edge {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 3px;
+    background: var(--accent);
+  }
+
+  @media (min-width: 960px) {
+    /* Starts below the nav so the plate's angled top edge — and the accent
+       rule riding it — actually reads as a tilt instead of a full bleed. */
+    .hero__plate {
+      inset-block: 13% -16%;
+      inset-inline-start: auto;
+      inset-inline-end: -7%;
+      inline-size: 50%;
+      block-size: auto;
+    }
+    .hero__type {
+      max-inline-size: 58%;
+    }
+  }
+  @media (min-width: 1400px) {
+    .hero__type {
+      max-inline-size: 54%;
+    }
+  }
+
+  .hero__scroll {
+    position: absolute;
+    inset-block-end: clamp(1rem, 3vh, 2rem);
+    inset-inline-start: var(--gutter);
+    z-index: 3;
+    display: none;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  :root[dir="rtl"] .hero__scroll {
+    text-transform: none;
+    letter-spacing: 0.05em;
+  }
+  .hero__scroll-line {
+    inline-size: 3rem;
+    block-size: 1px;
+    background: var(--text-dim);
+    overflow: hidden;
+    position: relative;
+  }
+  .hero__scroll-line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform-origin: var(--o-start);
+    animation: sweep 2.4s var(--ease) infinite;
+  }
+  @keyframes sweep {
+    0% {
+      transform: scaleX(0);
+      transform-origin: var(--o-start);
+    }
+    45% {
+      transform: scaleX(1);
+      transform-origin: var(--o-start);
+    }
+    55% {
+      transform: scaleX(1);
+      transform-origin: var(--o-end);
+    }
+    100% {
+      transform: scaleX(0);
+      transform-origin: var(--o-end);
+    }
+  }
+  @media (min-width: 960px) {
+    .hero__scroll {
+      display: flex;
+    }
+  }
+
+  /* Pre-JS states. Gated on html.js so a no-JS visitor sees the full hero,
+     and released by `.is-in` the moment the script runs, so an interrupted
+     animation can never leave content invisible. Layout boxes never move. */
+  html.js .hero:not(.is-in) .hero__letter {
+    transform: translateY(105%);
+  }
+  html.js .hero:not(.is-in) .hero__eyebrow,
+  html.js .hero:not(.is-in) .hero__sub-word,
+  html.js .hero:not(.is-in) .hero__lockup,
+  html.js .hero:not(.is-in) .hero__tagline,
+  html.js .hero:not(.is-in) .hero__lede,
+  html.js .hero:not(.is-in) .hero__cta,
+  html.js .hero:not(.is-in) .hero__rating,
+  html.js .hero:not(.is-in) .hero__phone,
+  html.js .hero:not(.is-in) .hero__plate {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { animate, scroll, stagger } from "motion";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const D = (n: number) => (reduce ? n * 0.4 : n);
+
+  const hero = document.querySelector<HTMLElement>(".hero");
+  const letters = document.querySelectorAll<HTMLElement>(".hero__letter");
+  const plate = document.querySelector<HTMLElement>("[data-hero-plate]");
+
+  hero?.classList.add("is-in"); // lift the CSS gate before animating
+
+  // 1. Kinetic wordmark: letters rise out of their masks.
+  if (letters.length) {
+    animate(
+      letters,
+      { transform: ["translateY(105%)", "translateY(0%)"] },
+      { duration: D(0.9), delay: stagger(reduce ? 0.01 : 0.055), ease: [0.16, 1, 0.3, 1] },
+    );
+  }
+
+  // 2. The rest of the type stack settles in behind it.
+  const stack = document.querySelectorAll<HTMLElement>(
+    ".hero__eyebrow, .hero__sub-word, .hero__lockup, .hero__tagline, .hero__lede, .hero__cta, .hero__rating, .hero__phone",
+  );
+  if (stack.length) {
+    animate(
+      stack,
+      { opacity: [0, 1], transform: ["translateY(18px)", "translateY(0px)"] },
+      {
+        duration: D(0.7),
+        delay: stagger(reduce ? 0.02 : 0.07, { startDelay: reduce ? 0.05 : 0.28 }),
+        ease: "easeOut",
+      },
+    );
+  }
+
+  // 3. The accent rule draws out from under the type, continuing the awning line.
+  const rule = document.querySelector<HTMLElement>(".hero__rule");
+  if (rule) {
+    animate(
+      rule,
+      { transform: ["scaleX(0)", "scaleX(1)"] },
+      { duration: D(1.1), delay: reduce ? 0.05 : 0.5, ease: [0.16, 1, 0.3, 1] },
+    );
+  }
+
+  // 4. The plate slides up into place, then parallaxes against the type on scroll.
+  if (plate) {
+    animate(
+      plate,
+      { opacity: [0, 1], transform: ["translateY(40px) scale(1.04)", "translateY(0px) scale(1)"] },
+      { duration: D(1.2), delay: reduce ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] },
+    );
+
+    // scroll() returns a PLAIN cleanup function — never a controls object.
+    const stopParallax = scroll(
+      (progress: number) => {
+        // `translate` is a separate property, so it composes with the
+        // frame's rotate() instead of replacing it.
+        plate.style.translate = `0 ${reduce ? 0 : progress * 44}px`;
+        plate.style.opacity = String(1 - progress * 0.45);
+      },
+      { target: hero as Element, offset: ["start start", "end start"] },
+    );
+    window.addEventListener("pagehide", () => stopParallax(), { once: true });
+  }
+
+  // 5. Cursor spotlight on the dark hero — desktop pointers only.
+  //    (Magnetic CTA pull lives in PageMotion.astro, shared with the contact
+  //     cluster, so it is wired once for every [data-magnet] on the page.)
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  if (fine.matches && hero) {
+    hero.classList.add("has-pointer");
+    hero.addEventListener(
+      "pointermove",
+      (e) => {
+        const r = hero.getBoundingClientRect();
+        hero.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        hero.style.setProperty("--my", `${e.clientY - r.top}px`);
+      },
+      { passive: true },
+    );
+  }
+</script>

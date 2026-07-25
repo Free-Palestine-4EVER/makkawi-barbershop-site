@@ -1,0 +1,359 @@
+---
+import { COPY, NAME_AR, waGeneral, type Lang } from "../data/copy";
+import {
+  NAME,
+  HOURS,
+  PHONE_TEL,
+  PHONE_DISPLAY,
+  PLUS_CODE,
+  MAPS_URL,
+  REVIEW_URL,
+  waLink,
+} from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+const BASE = import.meta.env.BASE_URL;
+---
+
+<footer class="ft">
+  <div class="ft__in shell">
+    <div class="ft__brand">
+      <p class="ft__mark">MAKKAWI<span>BARBERSHOP</span></p>
+      <p class="ft__mark-ar" lang="ar" dir="rtl">{NAME_AR}</p>
+      <p class="ft__meta">{t.footerRights}</p>
+      <p class="ft__meta ft__meta--code" dir="ltr">{PLUS_CODE}</p>
+      <div class="ft__links">
+        <a class="link" href={`tel:${PHONE_TEL}`} dir="ltr">{PHONE_DISPLAY}</a>
+        <a class="link" href={MAPS_URL} target="_blank" rel="noopener">{t.locOpenMaps}</a>
+        <a class="link" href={REVIEW_URL} target="_blank" rel="noopener">{t.footerRate}</a>
+        <a class="link" href={`${BASE}${lang === "ar" ? "en" : "ar"}/`}>
+          {lang === "ar" ? "English" : "العربية"}
+        </a>
+      </div>
+    </div>
+
+    <div class="ft__hours">
+      <div class="ft__hours-head">
+        <h2 class="ft__hours-title">{t.hoursHeading}</h2>
+        <span class="ft__pill" data-open-pill hidden>
+          <span class="ft__pill-dot" aria-hidden="true"></span>
+          <span data-open-text></span>
+        </span>
+      </div>
+
+      <table class="ft__table">
+        <tbody>
+          {
+            HOURS.map((d) => (
+              <tr class:list={["ft__row", d.variant && "is-variant"]} data-day={d.index}>
+                <th scope="row">{t.days[d.en]}</th>
+                <td dir="ltr">
+                  {t.timeFmt(d.open)} – {t.timeFmt(d.close)}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ft__base shell">
+    <p>© {new Date().getFullYear()} {NAME}</p>
+  </div>
+</footer>
+
+<!-- Mobile WhatsApp FAB: detaches from the hero cluster once the hero exits. -->
+<a
+  class="fab"
+  href={waLink(waGeneral)}
+  target="_blank"
+  rel="noopener"
+  data-fab
+  aria-label={t.ctaWhatsapp}
+  hidden
+>
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12.04 2C6.6 2 2.18 6.42 2.18 11.86c0 1.9.53 3.68 1.46 5.2L2 22l5.09-1.6a9.8 9.8 0 0 0 4.95 1.33h.01c5.44 0 9.86-4.42 9.86-9.86S17.48 2 12.04 2Zm5.77 14.03c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11a15.4 15.4 0 0 1-1.65-.62c-2.9-1.26-4.8-4.2-4.95-4.4-.14-.2-1.19-1.58-1.19-3.02 0-1.43.75-2.13 1.02-2.42.27-.29.58-.36.78-.36h.56c.18 0 .42-.07.66.5.24.59.82 2.02.89 2.17.07.14.12.31.02.5-.1.2-.15.32-.29.49-.15.17-.31.38-.44.51-.15.14-.3.3-.13.59.17.29.76 1.25 1.62 2.02 1.12.99 2.06 1.3 2.35 1.45.29.14.46.12.63-.07.17-.2.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.69.8 1.98.94.29.15.48.22.55.34.07.12.07.68-.17 1.36Z" />
+  </svg>
+</a>
+
+<style>
+  .ft {
+    position: relative;
+    background: var(--bg);
+    border-block-start: 1px solid var(--hairline);
+    padding-block: clamp(3rem, 7vw, 5.5rem) 0;
+  }
+  .ft__in {
+    display: grid;
+    gap: clamp(2.2rem, 5vw, 4rem);
+  }
+
+  .ft__mark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 122%;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+  }
+  .ft__mark span {
+    display: block;
+    font-weight: 300;
+    font-stretch: 106%;
+    font-size: 0.32em;
+    letter-spacing: 0.3em;
+    margin-block-start: 0.35em;
+  }
+  .ft__mark-ar {
+    font-weight: 600;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: var(--accent-2);
+    margin-block-start: 0.5rem;
+  }
+  .ft__meta {
+    font-size: var(--fs-small);
+    color: var(--text-dim);
+    margin-block-start: 0.4rem;
+  }
+  .ft__meta--code {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .ft__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.4rem;
+    margin-block-start: 1.2rem;
+    font-size: var(--fs-small);
+  }
+
+  .ft__hours-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-block-end: 1rem;
+  }
+  .ft__hours-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-stretch: 112%;
+    font-size: var(--fs-h3);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  :root[dir="rtl"] .ft__hours-title {
+    font-family: var(--font-body);
+    font-stretch: normal;
+    text-transform: none;
+  }
+
+  .ft__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .ft__pill-dot {
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    flex: none;
+  }
+  .ft__pill.is-open .ft__pill-dot {
+    background: #37d67a;
+    box-shadow: 0 0 0 0 rgba(55, 214, 122, 0.6);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    to {
+      box-shadow: 0 0 0 9px rgba(55, 214, 122, 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ft__pill.is-open .ft__pill-dot {
+      animation-duration: 6s;
+    }
+  }
+
+  .ft__table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-small);
+  }
+  .ft__row th,
+  .ft__row td {
+    padding-block: 0.7rem;
+    border-block-end: 1px solid var(--hairline);
+    font-weight: 500;
+    text-align: start;
+  }
+  .ft__row td {
+    text-align: end;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  /* Wednesday genuinely opens 9:30 — surfaced, not flattened. */
+  .ft__row.is-variant th,
+  .ft__row.is-variant td {
+    color: var(--accent-2);
+  }
+  .ft__row.is-today th {
+    position: relative;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .ft__row.is-today th::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -0.7rem;
+    inset-block-start: 50%;
+    inline-size: 4px;
+    block-size: 4px;
+    translate: 0 -50%;
+    background: var(--accent);
+    rotate: 45deg;
+  }
+
+  .ft__base {
+    margin-block-start: clamp(2.5rem, 6vw, 4rem);
+    padding-block: 1.4rem;
+    border-block-start: 1px solid var(--hairline);
+    font-size: var(--fs-small);
+    color: var(--text-dim);
+  }
+
+  @media (min-width: 860px) {
+    .ft__in {
+      grid-template-columns: 1fr minmax(0, 400px);
+      gap: clamp(3rem, 8vw, 7rem);
+    }
+  }
+
+  /* ---- mobile WhatsApp FAB ---- */
+  .fab {
+    position: fixed;
+    inset-block-end: 1rem;
+    inset-inline-end: 1rem;
+    z-index: 105;
+    inline-size: 56px;
+    block-size: 56px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #1d9c53;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    will-change: transform, opacity;
+  }
+  .fab[hidden] {
+    display: none;
+  }
+  .fab svg {
+    inline-size: 28px;
+    block-size: 28px;
+  }
+  .fab:active {
+    transform: scale(0.92);
+  }
+  @media (min-width: 900px) {
+    .fab {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { animate } from "motion";
+  import { HOURS_CLIENT } from "../data/business";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- "open now", computed against Amman local time ---- */
+  const pill = document.querySelector<HTMLElement>("[data-open-pill]");
+  const pillText = document.querySelector<HTMLElement>("[data-open-text]");
+  const OPEN_LABEL = document.documentElement.lang === "ar" ? "مفتوح الآن" : "Open now";
+  const CLOSED_LABEL = document.documentElement.lang === "ar" ? "مسكّر الآن" : "Closed now";
+
+  function ammanNow() {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Amman",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(new Date());
+    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+    const dayMap: Record<string, number> = {
+      Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+    };
+    return {
+      day: dayMap[get("weekday")] ?? new Date().getDay(),
+      minutes: parseInt(get("hour"), 10) * 60 + parseInt(get("minute"), 10),
+    };
+  }
+
+  function refreshOpenState() {
+    const { day, minutes } = ammanNow();
+    const today = HOURS_CLIENT.find((d) => d.index === day);
+    const isOpen = !!today && minutes >= today.openMin && minutes < today.closeMin;
+
+    if (pill && pillText) {
+      pill.hidden = false;
+      pill.classList.toggle("is-open", isOpen);
+      pillText.textContent = isOpen ? OPEN_LABEL : CLOSED_LABEL;
+    }
+    document
+      .querySelectorAll<HTMLElement>("[data-day]")
+      .forEach((row) =>
+        row.classList.toggle("is-today", Number(row.dataset.day) === day),
+      );
+  }
+  refreshOpenState();
+  setInterval(refreshOpenState, 60_000);
+
+  /* ---- WhatsApp FAB appears once the hero has scrolled away ---- */
+  const fab = document.querySelector<HTMLElement>("[data-fab]");
+  const hero = document.querySelector<HTMLElement>(".hero");
+  if (fab && hero) {
+    let visible = false;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        const shouldShow = !entry.isIntersecting;
+        if (shouldShow === visible) return;
+        visible = shouldShow;
+        if (shouldShow) {
+          fab.hidden = false;
+          animate(
+            fab,
+            { opacity: [0, 1], transform: ["translateY(20px) scale(0.8)", "translateY(0px) scale(1)"] },
+            { duration: reduce ? 0.15 : 0.45, ease: [0.16, 1, 0.3, 1] },
+          );
+        } else {
+          animate(
+            fab,
+            { opacity: [1, 0], transform: ["translateY(0px) scale(1)", "translateY(16px) scale(0.85)"] },
+            { duration: reduce ? 0.12 : 0.3, ease: "easeIn" },
+          ).finished.then(() => {
+            if (!visible) fab.hidden = true;
+          });
+        }
+      },
+      { threshold: 0.05 },
+    );
+    io.observe(hero);
+  }
+</script>

@@ -1,0 +1,432 @@
+---
+import { Image } from "astro:assets";
+import { photos, type PhotoKey } from "../data/photos";
+import { COPY, type Lang } from "../data/copy";
+import { RATING, REVIEW_COUNT, MAPS_URL } from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+
+/**
+ * 8 tiles, deliberately uneven — 7 photos plus one accent panel carrying the
+ * trust number, so the rating is physically embedded in the craft evidence.
+ * `photo-2` (storefront) is reserved for the hero so it keeps its impact.
+ */
+type Tile =
+  | { kind: "photo"; key: PhotoKey; area: string; ratio: string }
+  | { kind: "stat"; area: string };
+
+const tiles: Tile[] = [
+  {
+    kind: "photo",
+    key: "interiorWide",
+    area: "a",
+    ratio: "16 / 10",
+  },
+  {
+    kind: "photo",
+    key: "barberAtWork",
+    area: "b",
+    ratio: "3 / 4",
+  },
+  { kind: "stat", area: "c" },
+  {
+    kind: "photo",
+    key: "washStation",
+    area: "d",
+    ratio: "3 / 4",
+  },
+  {
+    kind: "photo",
+    key: "beardComb",
+    area: "e",
+    ratio: "1 / 1",
+  },
+  {
+    kind: "photo",
+    key: "razorLineup",
+    area: "f",
+    ratio: "1 / 1",
+  },
+  {
+    kind: "photo",
+    key: "kidCut",
+    area: "g",
+    ratio: "1 / 1",
+  },
+  {
+    kind: "photo",
+    key: "interiorChairs",
+    area: "h",
+    ratio: "16 / 9",
+  },
+];
+---
+
+<section class="gal" id="gallery">
+  <div class="gal__head shell">
+    <p class="eyebrow">{t.galleryEyebrow}</p>
+    <h2 class="h2 gal__h2">{t.galleryHeading}</h2>
+  </div>
+
+  <div class="gal__grid shell" data-gal-grid>
+    {
+      tiles.map((tile, i) =>
+        tile.kind === "stat" ? (
+          <a
+            class="gal__tile gal__tile--stat"
+            style={`--area:${tile.area}; --duo-delay:${(i * 0.075).toFixed(3)}s`}
+            href={MAPS_URL}
+            target="_blank"
+            rel="noopener"
+          >
+            <span class="gal__stat-num numeral">{RATING}</span>
+            <span class="gal__stat-stars" aria-hidden="true">
+              ★★★★★
+            </span>
+            <span class="gal__stat-label">
+              {REVIEW_COUNT} — {t.galleryStatLabel}
+            </span>
+          </a>
+        ) : (
+          <figure
+            class="gal__tile duo"
+            style={`--area:${tile.area}; --ratio:${tile.ratio}; --duo-delay:${(i * 0.075).toFixed(3)}s`}
+            data-gal-tile
+            data-full={tile.key}
+          >
+            <button class="gal__open" type="button" data-lightbox={tile.key}>
+              <span class="sr-only">{t.captions[tile.key]}</span>
+            </button>
+            <Image
+              src={photos[tile.key]}
+              alt={t.alts[tile.key]}
+              widths={[400, 800, 1200]}
+              sizes="(min-width: 900px) 42vw, 92vw"
+              loading="lazy"
+              format="webp"
+              quality={74}
+            />
+            <figcaption class="gal__cap">{t.captions[tile.key]}</figcaption>
+          </figure>
+        ),
+      )
+    }
+  </div>
+</section>
+
+<!-- Lightbox -->
+<dialog class="lb" data-lightbox-dialog aria-label={t.galleryHeading}>
+  <button class="lb__close" type="button" data-lightbox-close>
+    <span class="sr-only">{t.lightboxClose}</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"></path>
+    </svg>
+  </button>
+  <div class="lb__stage">
+    {
+      tiles
+        .filter((x): x is Extract<Tile, { kind: "photo" }> => x.kind === "photo")
+        .map((tile) => (
+          <figure class="lb__item" data-lightbox-item={tile.key}>
+            <Image
+              src={photos[tile.key]}
+              alt={t.alts[tile.key]}
+              widths={[800, 1400]}
+              sizes="92vw"
+              loading="lazy"
+              format="webp"
+              quality={80}
+            />
+            <figcaption>{t.captions[tile.key]}</figcaption>
+          </figure>
+        ))
+    }
+  </div>
+</dialog>
+
+<style>
+  .gal {
+    position: relative;
+    background: var(--surface);
+    padding-block: clamp(4rem, 9vw, 8rem);
+  }
+  .gal__head {
+    margin-block-end: clamp(1.8rem, 4vw, 3rem);
+  }
+  .gal__h2 {
+    margin-block-start: 0.7rem;
+  }
+
+  .gal__grid {
+    display: grid;
+    gap: clamp(0.5rem, 1.2vw, 0.9rem);
+    grid-template-areas:
+      "a a"
+      "b c"
+      "d e"
+      "f g"
+      "h h";
+  }
+
+  .gal__tile {
+    grid-area: var(--area);
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+    aspect-ratio: var(--ratio, 1);
+    --duo: 1;
+  }
+  .gal__tile :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    /* Bias the crop upward — these are room and portrait shots whose subject
+       sits above centre; a dead-centre cover crop lands on the counter. */
+    object-position: 50% 35%;
+    transition: transform 0.7s var(--ease);
+  }
+  .gal__tile[data-gal-tile]:hover :global(img) {
+    transform: scale(1.06);
+  }
+  .gal__tile[data-gal-tile]:hover {
+    --duo: 0;
+  }
+
+  .gal__open {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .gal__cap {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 3;
+    padding: 1.6rem 1rem 0.85rem;
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--text);
+    background: linear-gradient(transparent, rgba(18, 16, 15, 0.88));
+    transform: translateY(102%);
+    transition: transform 0.45s var(--ease);
+  }
+  .gal__tile[data-gal-tile]:hover .gal__cap,
+  .gal__open:focus-visible ~ .gal__cap {
+    transform: translateY(0);
+  }
+  /* Touch devices never hover — show the caption there. */
+  @media (hover: none) {
+    .gal__cap {
+      transform: translateY(0);
+    }
+  }
+
+  /* the accent stat panel embedded in the mosaic */
+  .gal__tile--stat {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 0.3rem;
+    padding: clamp(1rem, 2.5vw, 1.8rem);
+    background: var(--accent);
+    color: var(--text);
+    aspect-ratio: 3 / 4;
+    transition: transform 0.5s var(--ease);
+  }
+  .gal__tile--stat:hover {
+    transform: translateY(-4px);
+  }
+  .gal__stat-num {
+    font-size: clamp(3rem, 9vw, 5.5rem);
+  }
+  .gal__stat-stars {
+    color: #ffe9b0;
+    letter-spacing: 0.12em;
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+  }
+  .gal__stat-label {
+    font-size: var(--fs-small);
+    font-weight: 600;
+    line-height: 1.4;
+    max-inline-size: 16ch;
+  }
+
+  @media (min-width: 760px) {
+    .gal__grid {
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-areas:
+        "a a a a a a b b b c c c"
+        "a a a a a a b b b c c c"
+        "d d d e e e f f f g g g"
+        "h h h h h h h h h g g g";
+    }
+    .gal__tile {
+      aspect-ratio: auto;
+      min-block-size: clamp(140px, 15vw, 230px);
+    }
+    .gal__tile--stat {
+      aspect-ratio: auto;
+    }
+  }
+
+  /* Pre-reveal gate for the diagonal wipe */
+  html.js .gal__grid:not(.is-in) .gal__tile {
+    opacity: 0;
+  }
+
+  /* Duotone -> colour. `--duo` feeds the .duo::after overlay's opacity, which
+     IS transitionable, so no custom-property interpolation is needed. The
+     per-tile --duo-delay walks the same diagonal as the entrance stagger. */
+  .gal__tile.duo::after {
+    transition: opacity 0.9s var(--ease) var(--duo-delay, 0s);
+  }
+  .gal__grid.is-in .gal__tile {
+    --duo: 0.5;
+  }
+  .gal__grid .gal__tile[data-gal-tile]:hover::after {
+    transition-delay: 0s;
+  }
+
+  /* ---- lightbox ---- */
+  .lb {
+    border: 0;
+    padding: 0;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    block-size: 100%;
+    max-block-size: 100%;
+    background: rgba(9, 8, 7, 0.96);
+    color: var(--text);
+  }
+  .lb::backdrop {
+    background: rgba(9, 8, 7, 0.9);
+  }
+  .lb__stage {
+    display: grid;
+    place-items: center;
+    block-size: 100%;
+    padding: clamp(1rem, 4vw, 3rem);
+  }
+  .lb__item {
+    display: none;
+    grid-area: 1 / 1;
+    margin: 0;
+    max-inline-size: min(100%, 1100px);
+    text-align: center;
+  }
+  .lb__item.is-active {
+    display: block;
+  }
+  .lb__item :global(img) {
+    inline-size: 100%;
+    block-size: auto;
+    max-block-size: 78vh;
+    object-fit: contain;
+    margin-inline: auto;
+  }
+  .lb__item figcaption {
+    margin-block-start: 1rem;
+    font-size: var(--fs-small);
+    color: var(--text-dim);
+  }
+  .lb__close {
+    position: absolute;
+    inset-block-start: clamp(0.7rem, 2vw, 1.4rem);
+    inset-inline-end: clamp(0.7rem, 2vw, 1.4rem);
+    z-index: 2;
+    inline-size: 48px;
+    block-size: 48px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color 0.3s var(--ease);
+  }
+  .lb__close:hover {
+    background: var(--accent);
+  }
+  .lb__close svg {
+    inline-size: 22px;
+    block-size: 22px;
+  }
+</style>
+
+<script>
+  import { animate, inView, stagger } from "motion";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const grid = document.querySelector<HTMLElement>("[data-gal-grid]");
+
+  // Duotone-to-colour wipe, staggered along the same -3deg diagonal the
+  // section dividers use. Observe the GRID so it fires once, together.
+  if (grid) {
+    inView(
+      grid,
+      () => {
+        grid.classList.add("is-in");
+        const tiles = grid.querySelectorAll<HTMLElement>(".gal__tile");
+        animate(
+          tiles,
+          {
+            opacity: [0, 1],
+            clipPath: ["inset(0 0 100% 0)", "inset(0 0 0% 0)"],
+            transform: ["translateY(30px)", "translateY(0px)"],
+          },
+          {
+            duration: reduce ? 0.3 : 0.8,
+            // "from: first" walks the diagonal because the tiles are laid out
+            // in reading order across the mosaic.
+            delay: stagger(reduce ? 0.015 : 0.075, { from: "first" }),
+            ease: [0.16, 1, 0.3, 1],
+          },
+        );
+        // The duotone->colour resolve itself is a CSS transition driven by the
+        // `.is-in` class above (see --duo / --duo-delay in the stylesheet).
+      },
+      { amount: 0.12 },
+    );
+  }
+
+  // ---- lightbox ----
+  const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox-dialog]");
+  const items = document.querySelectorAll<HTMLElement>("[data-lightbox-item]");
+
+  function show(key: string) {
+    if (!dialog) return;
+    items.forEach((el) =>
+      el.classList.toggle("is-active", el.dataset.lightboxItem === key),
+    );
+    dialog.showModal();
+    const active = dialog.querySelector<HTMLElement>(".lb__item.is-active");
+    if (active) {
+      animate(
+        active,
+        { opacity: [0, 1], transform: ["scale(0.96)", "scale(1)"] },
+        { duration: reduce ? 0.12 : 0.35, ease: "easeOut" },
+      );
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-lightbox]").forEach((btn) => {
+    btn.addEventListener("click", () => show(btn.dataset.lightbox || ""));
+  });
+  document
+    .querySelector<HTMLElement>("[data-lightbox-close]")
+    ?.addEventListener("click", () => dialog?.close());
+  // Click the backdrop area to dismiss.
+  dialog?.addEventListener("click", (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+</script>

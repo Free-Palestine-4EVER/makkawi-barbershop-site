@@ -1,0 +1,385 @@
+/* Self-hosted fonts — no CDN, no runtime network requests. ------------------ */
+/* Body + Arabic: IBM Plex Sans Arabic (family registers as "IBM Plex Sans Arabic") */
+@import "@fontsource/ibm-plex-sans-arabic/400.css";
+@import "@fontsource/ibm-plex-sans-arabic/500.css";
+@import "@fontsource/ibm-plex-sans-arabic/600.css";
+@import "@fontsource/ibm-plex-sans-arabic/700.css";
+/* Latin display: Archivo Variable, width axis build (family: "Archivo Variable") */
+@import "@fontsource-variable/archivo/wdth.css";
+
+/* ---------------------------------------------------------------------------
+ * TOKENS — palette sampled from photo-2.jpg (real red awning + stone facade)
+ * and photo-8.jpg (black leather, warm wood, white walls).
+ * ------------------------------------------------------------------------ */
+:root {
+  --bg: #12100f;
+  --surface: #1d1a18;
+  --surface-2: #262220;
+  --text: #f2ede6;
+  --text-dim: #a49c92;
+  --accent: #e11d33; /* awning red — 4.0:1 on --bg: display type / buttons / rules ONLY */
+  --accent-2: #d8a657; /* brass — 8.6:1 on --bg: safe for small text, links, numerals */
+  --hairline: rgba(242, 237, 230, 0.14);
+
+  --font-body: "IBM Plex Sans Arabic", system-ui, -apple-system, sans-serif;
+  --font-display: "Archivo Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
+
+  /* Fluid type ramp — 5 deliberate steps */
+  --fs-display: clamp(3.25rem, 10.5vw, 9rem);
+  --fs-h2: clamp(2rem, 3vw + 1.1rem, 4.25rem);
+  --fs-h3: clamp(1.25rem, 0.8vw + 1rem, 1.9rem);
+  --fs-eyebrow: clamp(0.68rem, 0.2vw + 0.62rem, 0.8rem);
+  --fs-body: clamp(1rem, 0.35vw + 0.92rem, 1.18rem);
+  --fs-small: clamp(0.8rem, 0.2vw + 0.75rem, 0.92rem);
+  --fs-numeral: clamp(4.5rem, 15vw, 13rem);
+
+  --gutter: clamp(1.15rem, 5vw, 5.5rem);
+  --measure: 62ch;
+  --tilt: -3deg;
+  --radius: 3px;
+  --ease: cubic-bezier(0.22, 0.68, 0.24, 1);
+
+  /* transform-origin has no logical keywords, so mirror it by hand. */
+  --o-start: left;
+  --o-end: right;
+}
+
+:root[dir="rtl"] {
+  --o-start: right;
+  --o-end: left;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.7;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Arabic wants slightly more air between lines at equivalent sizes. */
+:root[dir="rtl"] body {
+  line-height: 1.9;
+}
+
+img,
+svg,
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+ul,
+ol {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------------------
+ * PRIMITIVES
+ * ------------------------------------------------------------------------ */
+.shell {
+  inline-size: min(100%, 1440px);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  position: relative;
+  padding-block: clamp(4.5rem, 10vw, 9.5rem);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-family: var(--font-body);
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin: 0;
+}
+:root[dir="rtl"] .eyebrow {
+  letter-spacing: 0.1em;
+  text-transform: none;
+}
+.eyebrow::before {
+  content: "";
+  inline-size: clamp(1.4rem, 3vw, 2.8rem);
+  block-size: 1px;
+  background: var(--accent);
+  flex: none;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  font-stretch: 118%;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+:root[dir="rtl"] .h2 {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-stretch: normal;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  text-transform: none;
+}
+
+.lede {
+  max-inline-size: var(--measure);
+  color: var(--text-dim);
+}
+
+.rule {
+  block-size: 1px;
+  background: var(--hairline);
+  border: 0;
+  margin: 0;
+}
+
+/* Buttons — filled red label must be >=18px bold for 4.1:1 contrast. */
+.btn {
+  --btn-bg: var(--accent);
+  --btn-fg: var(--text);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-block-size: 52px;
+  padding-inline: clamp(1.4rem, 3vw, 2.2rem);
+  padding-block: 0.85rem;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-family: var(--font-body);
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  will-change: transform;
+  transition: transform 0.25s var(--ease);
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s var(--ease);
+}
+.btn:hover::before {
+  opacity: 0.12;
+}
+.btn:active {
+  transform: scale(0.965);
+}
+.btn__icon {
+  flex: none;
+  inline-size: 1.15em;
+  block-size: 1.15em;
+  transition: transform 0.35s var(--ease);
+}
+.btn:hover .btn__icon {
+  transform: translateX(3px) rotate(-8deg);
+}
+:root[dir="rtl"] .btn:hover .btn__icon {
+  transform: translateX(-3px) rotate(8deg);
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--text);
+  box-shadow: inset 0 0 0 1px var(--hairline);
+}
+.btn--ghost::before {
+  background: var(--text);
+}
+.btn--wa {
+  --btn-bg: #1d9c53;
+}
+
+/* Text link with a draw-on underline */
+.link {
+  position: relative;
+  color: var(--accent-2);
+  font-weight: 500;
+  padding-block-end: 2px;
+}
+.link::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-end: 0;
+  inline-size: 100%;
+  block-size: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: var(--o-start);
+  transition: transform 0.4s var(--ease);
+}
+.link:hover::after,
+.link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+/* Grain — self-hosted inline SVG turbulence, no external asset. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 3;
+}
+
+/* Diagonal divider — the awning angle as the site's structural motif. */
+.wedge {
+  position: relative;
+  block-size: clamp(2.5rem, 6vw, 6rem);
+  background: var(--fill, var(--surface));
+  clip-path: polygon(0 var(--a, 3.2vw), 100% 0, 100% 100%, 0 100%);
+}
+.wedge--up {
+  clip-path: polygon(0 0, 100% var(--a, 3.2vw), 100% 100%, 0 100%);
+}
+
+/* Entrance choreography: elements start hidden but hold their layout space,
+   so nothing shifts (CLS = 0). `.is-in` is added by motion, and the no-JS /
+   already-visible fallback is handled by the .reveal-ready gate below. */
+html.js .reveal {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Duotone treatment for gallery/section photography */
+.duo {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+}
+.duo > img,
+.duo > picture > img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+.duo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    150deg,
+    rgba(18, 16, 15, 0.72),
+    rgba(216, 166, 87, 0.28) 55%,
+    rgba(225, 29, 51, 0.3)
+  );
+  mix-blend-mode: color;
+  opacity: var(--duo, 1);
+  transition: opacity 0.6s var(--ease);
+  pointer-events: none;
+}
+
+.sr-only {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: fixed;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  z-index: 200;
+  padding: 0.75rem 1.1rem;
+  background: var(--accent);
+  color: var(--text);
+  font-weight: 700;
+  transform: translateY(-160%);
+  transition: transform 0.25s var(--ease);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Tabular, oversized numerals treated as graphic elements */
+.numeral {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-stretch: 122%;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.04em;
+  line-height: 0.82;
+}
+
+/* NOTE: reduced motion is handled per-component (shorter durations, softer
+   travel) rather than with a blanket animation kill — the hero drift, the
+   ticker and the signature moment all stay present, just calmer. */

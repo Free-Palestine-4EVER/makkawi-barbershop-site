@@ -1,0 +1,58 @@
+[2026-07-25T02:14:54.002Z] Extracting business data from https://www.google.com/maps/place/?q=place_id:ChIJIaqa62WhHBURokxIcciDqXc
+[2026-07-25T02:14:54.434Z] Navigating to https://www.google.com/maps/place/?q=place_id:ChIJIaqa62WhHBURokxIcciDqXc
+[2026-07-25T02:14:56.122Z] Reloading with English UI: https://www.google.com/maps/place/?q=place_id%3AChIJIaqa62WhHBURokxIcciDqXc&hl=en
+[2026-07-25T02:15:02.365Z] Loaded page for "MAKKAWI BARBERSHOP"
+[2026-07-25T02:15:02.782Z] Collecting photos...
+[2026-07-25T02:15:08.370Z] Downloaded 11 photo(s).
+[2026-07-25T02:15:08.370Z] Opening reviews...
+[2026-07-25T02:15:08.381Z] Captured 0 review(s).
+[2026-07-25T02:15:08.413Z] Extraction complete: MAKKAWI BARBERSHOP (Barber shop)
+[2026-07-25T02:15:08.413Z] Writing design brief via claude -p...
+[2026-07-25T02:15:08.413Z] --- claude -p: write brief (cwd=/Users/hideyourkids/Desktop/dev/Tools & AI/gmb-factory/sites/makkawi-barbershop) ---
+[2026-07-25T02:18:26.056Z] Written to `./brief.md`. Stopping here as instructed — no build started.
+[2026-07-25T02:18:26.057Z] The thing that changed the brief most: I opened all 11 photos, and **three of them show other businesses**. `photo-11.jpg` is a "Gemini Barbershop" team photo carrying their logo, two phone numbers, and their Instagram/Facebook handles; `photo-7.jpg` is a "صالون كمال" sign (including a "SINCE 1989" graphic that is *not* this shop's founding date); `photo-10.jpg` is a street shot of "SALOON عايد FOR MEN". All three are hard-blocked in the brief, so the usable pool is 8 — every layout decision is sized to 8, not 11.
+[2026-07-25T02:18:26.057Z] The upside of that audit: `photo-2.jpg` is the genuine storefront, with a red awning reading "SALOON ALI MAKKAWI FOR MEN" and the phone number matching `phoneLocal`. So the palette's accent `#E11D33` is sampled from the business's actual signage rather than guessed, and `photo-5.jpg` (barber in a "MAKKAWI BARBER SHOP" polo) gives a second verified branded shot.
+[2026-07-25T02:18:26.057Z] Other decisions worth flagging:
+[2026-07-25T02:18:26.057Z] - **Signature moment** is a scroll-pinned 4.9/580 rating-ring reveal — chosen because `reviews: []` means the strongest asset can't be told through quotes, only through the numerals.
+[2026-07-25T02:18:26.057Z] - **Contrast**: `--accent` red hits only 4.0:1 on the dark background, so the brief restricts it to display type and filled buttons and routes small accent text to the brass `--accent-2` (8.6:1). Body pair is `#F2EDE6` on `#12100F`, 16.3:1.
+[2026-07-25T02:18:26.057Z] - **Services** ships 7 generic barber offerings, all `[GENERIC]`-tagged with no prices, with the price slot replaced by a per-service WhatsApp deep link — the only real conversion path, since `website` is null.
+[2026-07-25T02:18:26.057Z] - **Hours** have a genuine detail worth designing around: every day is 9–11 except Wednesday, which opens 9:30.
+[2026-07-25T02:18:26.581Z] --- claude -p: write brief exited with code 0 ---
+[2026-07-25T02:18:26.582Z] Brief written.
+[2026-07-25T02:18:26.583Z] Building site via claude -p (this can take a while)...
+[2026-07-25T02:18:26.584Z] --- claude -p: build site (cwd=/Users/hideyourkids/Desktop/dev/Tools & AI/gmb-factory/sites/makkawi-barbershop) ---
+[2026-07-25T03:01:24.505Z] The site is built and verified end to end.
+[2026-07-25T03:01:24.505Z] ## What shipped
+[2026-07-25T03:01:24.505Z] **Photo audit first.** I opened all 11 photos before writing layout code and independently confirmed the brief's finding: `photo-7` (صالون كمال, with a "SINCE 1989" graphic), `photo-10` (صالون عايد), and `photo-11` (Gemini Barbershop, carrying their logo, two phone numbers, and social handles) are **other businesses**. They're not imported at all in `src/data/photos.ts`, so they can't reach a component — verified absent from `dist/`. Usable pool: 8, and every layout is sized to 8.
+[2026-07-25T03:01:24.505Z] **Layout devices** — asymmetric 58/42 hero with the real red awning in a `-3°` plate that bleeds off the inline-end and bottom edge (mirrored to `+3°` in RTL), an accent rule riding the plate's top edge continuing the awning line; a 12-column bento mosaic with the red 4.9/580 stat panel embedded among the craft photos; services as a numbered index-row list with a cursor-parked photo preview, not a card grid; `-3°` clip-path wedges between sections.
+[2026-07-25T03:01:24.505Z] **Signature moment** works and scrubs: at 25% through the pinned track the ring reads 363/3.1 partially drawn, at 62% it's 580/4.9 complete with the red flash and the craft lines wiped up.
+[2026-07-25T03:01:24.505Z] **Bugs I found and fixed via the live browser**, none of which the build would have caught:
+[2026-07-25T03:01:24.505Z] - The letter-split wordmark rendered **"IWAKKAM"** in Arabic — RTL flex reversed the spans.
+[2026-07-25T03:01:24.505Z] - The service preview never appeared in Arabic — `inset-inline-start` anchored it to the right edge, so the JS translate pushed it off-screen. It's now deliberately physical `left`, with a comment saying why.
+[2026-07-25T03:01:24.506Z] - `::first-letter` drop-cap **tore Arabic words apart** (صالون → ص + الون). Arabic now gets its own editorial device.
+[2026-07-25T03:01:24.506Z] - Nav links overlapped at 1440px in English; the mobile hero plate sat under the CTAs; the hero duplicated "4.9"; alt text was hard-coded Arabic on the English page.
+[2026-07-25T03:01:24.506Z] **On the brief's "no Ali"** — the storefront alt originally transcribed "SALOON ALI MAKKAWI FOR MEN" from the sign. Since `facts.json` names no individual, I rewrote it to "a red awning carrying the shop name". No "Ali" anywhere in `dist/`.
+[2026-07-25T03:01:24.506Z] **Two deviations worth naming.** The brief forbids an embedded map (`lat`/`lng` are null), but the prompt's functional requirements mandate one "by address if coordinates are missing." I resolved this by querying the embed with the real Plus Code `XR5Q+P4 Amman` — a precise identifier from `facts.json`, not a fabricated coordinate — kept the decorative panel and Plus Code typography, and colour-graded the tiles into the palette. Second: the brief omitted the services section for lack of `menuOrServices`; per the prompt's override, seven category-standard offerings ship, with **no price, duration, or "from" figure** on any of them — the price slot is a WhatsApp chip with a service-specific prefilled message.
+[2026-07-25T03:01:24.506Z] **Verification:** clean build, no warnings. Zero console errors, page errors, or failed requests across ar/en × desktop/390px. No horizontal overflow at 390px. Every `scroll()` return is called as a plain function (never `.stop()`); the one `.finished` is on an `animate()` result; every `inView` observes a shared parent so groups animate once; no motion code in frontmatter; no bare imports in `is:inline` scripts. Reduced motion keeps the signature moment (track shortens 260svh → 130svh, numbers still resolve) and leaves nothing stuck hidden. No-JS still shows the full hero and all service rows. `dist/` has zero bare-root paths, valid JSON-LD in both languages, and `tel:+962796379479` / `wa.me/962796379479` / `mapsUrl` used as-is.
+[2026-07-25T03:01:24.506Z] One thing to flag for you: `reviews` is empty, so there is no quote anywhere on the site — the trust story is carried entirely by the 4.9/580 numerals plus outbound links to the real Google reviews. If review text gets captured later, that section has room for it without restructuring.
+[2026-07-25T03:01:25.038Z] --- claude -p: build site exited with code 0 ---
+[2026-07-25T03:01:25.039Z] Site built at /Users/hideyourkids/Desktop/dev/Tools & AI/gmb-factory/sites/makkawi-barbershop/dist
+[2026-07-25T03:01:25.040Z] Running Playwright QA pass...
+[2026-07-25T03:01:25.041Z] QA static server listening on http://127.0.0.1:50499
+[2026-07-25T03:01:25.042Z] Discovered routes to test: /, /ar/, /en/, /rate-us/
+[2026-07-25T03:01:25.709Z] Testing / @ mobile (chromium)...
+[2026-07-25T03:01:26.746Z] Testing / @ desktop (chromium)...
+[2026-07-25T03:01:28.075Z] Testing /ar/ @ mobile (chromium)...
+[2026-07-25T03:01:29.007Z] Testing /ar/ @ desktop (chromium)...
+[2026-07-25T03:01:30.332Z] Testing /en/ @ mobile (chromium)...
+[2026-07-25T03:01:31.188Z] Testing /en/ @ desktop (chromium)...
+[2026-07-25T03:01:32.418Z] Testing /rate-us/ @ mobile (chromium)...
+[2026-07-25T03:01:35.047Z] Testing /rate-us/ @ desktop (chromium)...
+[2026-07-25T03:01:37.055Z] Testing / @ mobile (webkit)...
+[2026-07-25T03:01:38.508Z] QA finished: 9 screenshot(s), 0 console error(s), 0 broken link(s), 0 issue(s).
+[2026-07-25T03:01:38.509Z] QA passed: 0 issue(s) logged.
+[2026-07-25T03:01:38.510Z] Shipping: git + GitHub repo + Pages...
+[2026-07-25T03:01:38.510Z] Ship: checking gh CLI authentication...
+[2026-07-25T03:01:39.148Z] Ship: gh auth OK.
+[2026-07-25T03:01:39.148Z] Ship: target repo Free-Palestine-4EVER/makkawi-barbershop-site
+[2026-07-25T03:01:39.148Z] Ship: git init...

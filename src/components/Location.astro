@@ -1,0 +1,186 @@
+---
+import { COPY, type Lang } from "../data/copy";
+import { PLUS_CODE, MAPS_URL, MAPS_EMBED } from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+---
+
+<section class="loc" id="location">
+  <div class="loc__grid shell">
+    <div class="loc__panel" data-loc-panel>
+      <p class="eyebrow">{t.locEyebrow}</p>
+      <h2 class="h2 loc__h2">{t.locHeading}</h2>
+
+      <p class="loc__city">{t.locCity}</p>
+
+      <div class="loc__code">
+        <span class="loc__code-label">{t.locPlusLabel}</span>
+        <span class="loc__code-val numeral" dir="ltr">{PLUS_CODE}</span>
+      </div>
+
+      <p class="loc__note lede">{t.locNote}</p>
+
+      <a class="btn loc__btn" href={MAPS_URL} target="_blank" rel="noopener" data-magnet>
+        <svg class="btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Z" stroke-linejoin="round"></path>
+          <circle cx="12" cy="10" r="2.6"></circle>
+        </svg>
+        {t.locOpenMaps}
+      </a>
+    </div>
+
+    <div class="loc__mapwrap" data-loc-map>
+      <!-- lat/lng are null in facts.json, so nothing is pinned by fabricated
+           coordinates — the embed is queried by the business's real Plus Code. -->
+      <iframe
+        class="loc__map"
+        src={MAPS_EMBED}
+        title={t.locMapTitle}
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+      <!-- Decorative, non-geographic line pattern echoing the -3deg motif.
+           It does not represent a real street layout. -->
+      <svg class="loc__deco" viewBox="0 0 400 240" aria-hidden="true" preserveAspectRatio="none">
+        <g stroke="currentColor" stroke-width="1" fill="none" opacity="0.5">
+          <path d="M-20 40 L420 18"></path>
+          <path d="M-20 96 L420 74"></path>
+          <path d="M-20 174 L420 152"></path>
+          <path d="M60 -20 L38 260"></path>
+          <path d="M188 -20 L166 260"></path>
+          <path d="M320 -20 L298 260"></path>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<style>
+  .loc {
+    position: relative;
+    background: var(--bg);
+    padding-block: clamp(4rem, 9vw, 8rem);
+  }
+  .loc__grid {
+    display: grid;
+    gap: clamp(1.6rem, 4vw, 3rem);
+    align-items: stretch;
+  }
+
+  .loc__panel {
+    position: relative;
+    background: var(--surface);
+    padding: clamp(1.4rem, 4vw, 3rem);
+    clip-path: polygon(0 0, 100% 2.2%, 100% 100%, 0 97.8%);
+  }
+  .loc__h2 {
+    margin-block: 0.7rem clamp(1rem, 2.5vw, 1.6rem);
+  }
+  .loc__city {
+    font-size: var(--fs-h3);
+    font-weight: 600;
+  }
+  .loc__code {
+    display: grid;
+    gap: 0.35rem;
+    margin-block: clamp(1.2rem, 3vw, 1.8rem);
+    padding-block: 1.1rem;
+    border-block: 1px solid var(--hairline);
+  }
+  .loc__code-label {
+    font-size: var(--fs-eyebrow);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+  }
+  :root[dir="rtl"] .loc__code-label {
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+  .loc__code-val {
+    font-size: clamp(1.7rem, 5.5vw, 3.1rem);
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .loc__note {
+    font-size: var(--fs-small);
+    max-inline-size: 38ch;
+  }
+  .loc__btn {
+    margin-block-start: clamp(1.2rem, 3vw, 1.8rem);
+    inline-size: 100%;
+  }
+
+  .loc__mapwrap {
+    position: relative;
+    overflow: hidden;
+    min-block-size: clamp(260px, 42vw, 460px);
+    background: var(--surface);
+    color: var(--accent-2);
+    clip-path: polygon(0 2.2%, 100% 0, 100% 97.8%, 0 100%);
+  }
+  .loc__map {
+    inline-size: 100%;
+    block-size: 100%;
+    min-block-size: inherit;
+    border: 0;
+    /* tune the Google tiles into the palette instead of leaving a bright
+       rectangle punched through a dark page */
+    filter: grayscale(0.85) invert(0.92) contrast(0.88) sepia(0.25) hue-rotate(170deg)
+      brightness(0.92);
+  }
+  .loc__deco {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0.35;
+  }
+
+  @media (min-width: 900px) {
+    .loc__grid {
+      grid-template-columns: minmax(0, 38%) 1fr;
+      gap: clamp(1.5rem, 3vw, 2.5rem);
+    }
+    .loc__btn {
+      inline-size: auto;
+    }
+  }
+
+  html.js .loc:not(.is-in) [data-loc-panel],
+  html.js .loc:not(.is-in) [data-loc-map] {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { animate, inView, stagger } from "motion";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const section = document.querySelector<HTMLElement>(".loc");
+
+  if (section) {
+    inView(
+      section,
+      () => {
+        section.classList.add("is-in");
+        animate(
+          section.querySelectorAll("[data-loc-panel], [data-loc-map]"),
+          { opacity: [0, 1], transform: ["translateY(28px)", "translateY(0px)"] },
+          {
+            duration: reduce ? 0.28 : 0.8,
+            delay: stagger(reduce ? 0.03 : 0.14),
+            ease: [0.16, 1, 0.3, 1],
+          },
+        );
+      },
+      { amount: 0.2 },
+    );
+  }
+</script>

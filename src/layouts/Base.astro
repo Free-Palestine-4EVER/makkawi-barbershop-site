@@ -1,0 +1,118 @@
+---
+import { getImage } from "astro:assets";
+import "../styles/global.css";
+import { photos } from "../data/photos";
+import { COPY, DIR, NAME_AR, CITY_EN, type Lang } from "../data/copy";
+import {
+  NAME,
+  RATING,
+  REVIEW_COUNT,
+  PHONE_TEL,
+  HOURS_SCHEMA,
+  MAPS_URL,
+} from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+const dir = DIR[lang];
+const other: Lang = lang === "ar" ? "en" : "ar";
+
+const BASE = import.meta.env.BASE_URL; // includes trailing slash
+const here = `${BASE}${lang}/`;
+const there = `${BASE}${other}/`;
+
+const canonical = new URL(here, Astro.site).toString();
+const altAr = new URL(`${BASE}ar/`, Astro.site).toString();
+const altEn = new URL(`${BASE}en/`, Astro.site).toString();
+
+// OG image must be an absolute URL. getImage() returns a base-aware src string;
+// we only need to make it absolute.
+const og = await getImage({
+  src: photos.storefront,
+  width: 1200,
+  height: 630,
+  format: "jpg",
+});
+const ogUrl = new URL(og.src, Astro.site).toString();
+
+const favicon = `${BASE}favicon.svg`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HairSalon",
+  "@id": canonical,
+  name: NAME,
+  alternateName: NAME_AR,
+  url: canonical,
+  telephone: PHONE_TEL,
+  image: ogUrl,
+  priceRange: "$$",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Amman",
+    addressCountry: "JO",
+  },
+  areaServed: CITY_EN,
+  hasMap: MAPS_URL,
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: RATING,
+    reviewCount: REVIEW_COUNT,
+    bestRating: 5,
+    worstRating: 1,
+  },
+  openingHoursSpecification: HOURS_SCHEMA,
+};
+---
+
+<!doctype html>
+<html lang={t.htmlLang} dir={dir}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{t.title}</title>
+    <meta name="description" content={t.description} />
+    <meta name="theme-color" content="#12100F" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+    <link rel="alternate" hreflang="ar" href={altAr} />
+    <link rel="alternate" hreflang="en" href={altEn} />
+    <link rel="alternate" hreflang="x-default" href={altAr} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={NAME} />
+    <meta property="og:locale" content={lang === "ar" ? "ar_JO" : "en_US"} />
+    <meta property="og:title" content={t.title} />
+    <meta property="og:description" content={t.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.ogAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={t.title} />
+    <meta name="twitter:description" content={t.description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Mark JS-capable before first paint so the reveal gate never hides
+         content from a no-JS visitor. Remember the language actually viewed;
+         the root route reads this back. -->
+    <script is:inline define:vars={{ lang }}>
+      document.documentElement.classList.add("js");
+      try {
+        localStorage.setItem("makkawi-lang", lang);
+      } catch (e) {}
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "makkawi-barbershop-site",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
+    "astro": "^7.1.3",
+    "motion": "^12.42.2",
+    "sharp": "^0.35.3"
+  }
+}

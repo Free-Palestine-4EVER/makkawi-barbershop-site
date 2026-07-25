@@ -1,0 +1,364 @@
+---
+import { COPY, type Lang } from "../data/copy";
+import { PHONE_TEL, PHONE_DISPLAY } from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+const other: Lang = lang === "ar" ? "en" : "ar";
+const BASE = import.meta.env.BASE_URL;
+const otherHref = `${BASE}${other}/`;
+---
+
+<div class="progress" aria-hidden="true"><span class="progress__bar"></span></div>
+
+<header class="nav" id="nav">
+  <div class="nav__in shell">
+    <a class="nav__mark" href={`${BASE}${lang}/`}>
+      <span class="nav__mark-word">MAKKAWI</span>
+      <span class="nav__mark-dot" aria-hidden="true"></span>
+    </a>
+
+    <nav class="nav__links" aria-label={lang === "ar" ? "التنقل" : "Primary"}>
+      {
+        t.navItems.map((item) => (
+          <a class="nav__link" href={`#${item.id}`} data-navlink={item.id}>
+            <span>{item.label}</span>
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="nav__end">
+      <a
+        class="nav__phone"
+        href={`tel:${PHONE_TEL}`}
+        aria-label={`${t.contactPhoneLabel} ${PHONE_DISPLAY}`}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.2 2 2 0 0 1 6.5 3Z" stroke-linejoin="round"></path>
+        </svg>
+        <span class="nav__phone-num">{PHONE_DISPLAY}</span>
+      </a>
+      <a class="nav__lang" href={otherHref} aria-label={t.langSwitchAria} data-lang-switch={other}>
+        {t.langSwitch}
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Side rail: doubles as section nav + scroll position indicator (desktop) -->
+<nav class="rail" aria-label={lang === "ar" ? "أقسام الصفحة" : "Sections"}>
+  <ul>
+    {
+      t.navItems.map((item) => (
+        <li>
+          <a href={`#${item.id}`} data-raillink={item.id}>
+            <span class="rail__label">{item.label}</span>
+            <span class="rail__dot" aria-hidden="true" />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .progress {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 2px;
+    background: transparent;
+    z-index: 120;
+  }
+  .progress__bar {
+    display: block;
+    block-size: 100%;
+    inline-size: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transform: scaleX(0);
+    transform-origin: var(--o-start);
+    will-change: transform;
+  }
+
+  .nav {
+    position: fixed;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 110;
+    transition:
+      background-color 0.4s var(--ease),
+      backdrop-filter 0.4s var(--ease),
+      box-shadow 0.4s var(--ease);
+  }
+  .nav.is-stuck {
+    background: rgba(18, 16, 15, 0.82);
+    backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: 0 1px 0 var(--hairline);
+  }
+  .nav__in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: clamp(0.7rem, 1.4vw, 1.1rem);
+  }
+
+  .nav__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-block-size: 44px; /* tap target */
+    padding-inline-end: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 118%;
+    font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+  .nav__mark-dot {
+    inline-size: 6px;
+    block-size: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    transition: transform 0.4s var(--ease);
+  }
+  .nav__mark:hover .nav__mark-dot {
+    transform: scale(1.9);
+  }
+
+  .nav__links {
+    display: none;
+    flex: 0 0 auto;
+    gap: clamp(0.8rem, 1.6vw, 1.6rem);
+  }
+  .nav__link {
+    position: relative;
+    white-space: nowrap;
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--text-dim);
+    padding-block: 0.35rem;
+    transition: color 0.3s var(--ease);
+  }
+  .nav__link::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-end: 0;
+    inline-size: 100%;
+    block-size: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: var(--o-start);
+    transition: transform 0.35s var(--ease);
+  }
+  .nav__link:hover,
+  .nav__link.is-active {
+    color: var(--text);
+  }
+  .nav__link:hover::after,
+  .nav__link.is-active::after {
+    transform: scaleX(1);
+  }
+
+  .nav__end {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav__phone {
+    display: none;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--accent-2);
+    font-variant-numeric: tabular-nums;
+    padding: 0.5rem 0.2rem;
+  }
+  .nav__phone svg {
+    inline-size: 1.05rem;
+    block-size: 1.05rem;
+    transition: transform 0.35s var(--ease);
+  }
+  .nav__phone:hover svg {
+    transform: rotate(-12deg) scale(1.1);
+  }
+  .nav__phone-num {
+    direction: ltr;
+  }
+
+  .nav__lang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 46px;
+    min-block-size: 44px;
+    padding-inline: 0.75rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    border-radius: var(--radius);
+    transition:
+      background-color 0.3s var(--ease),
+      transform 0.3s var(--ease);
+  }
+  :root[dir="rtl"] .nav__lang {
+    font-family: var(--font-body);
+  }
+  .nav__lang:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .nav__mark,
+  .nav__end {
+    flex: 0 0 auto;
+  }
+
+  @media (min-width: 940px) {
+    .nav__links {
+      display: flex;
+    }
+  }
+  /* The phone number only joins once there's genuinely room for it — below
+     this it would crowd the link row. */
+  @media (min-width: 1180px) {
+    .nav__phone {
+      display: flex;
+    }
+  }
+
+  /* ---- side rail ---- */
+  .rail {
+    display: none;
+    position: fixed;
+    inset-inline-end: clamp(0.9rem, 2vw, 1.8rem);
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+  }
+  .rail ul {
+    display: grid;
+    gap: 0.85rem;
+  }
+  .rail a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    color: var(--text-dim);
+  }
+  .rail__label {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateX(6px);
+    transition:
+      opacity 0.3s var(--ease),
+      transform 0.3s var(--ease);
+  }
+  :root[dir="rtl"] .rail__label {
+    text-transform: none;
+    letter-spacing: 0;
+    transform: translateX(-6px);
+  }
+  .rail__dot {
+    inline-size: 7px;
+    block-size: 7px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--text-dim);
+    transition:
+      background-color 0.35s var(--ease),
+      box-shadow 0.35s var(--ease),
+      transform 0.35s var(--ease);
+  }
+  .rail a:hover .rail__label,
+  .rail a.is-active .rail__label {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .rail a.is-active .rail__dot {
+    background: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+    transform: scale(1.5);
+  }
+  .rail a:hover .rail__dot {
+    box-shadow: inset 0 0 0 1px var(--accent-2);
+  }
+
+  @media (min-width: 1200px) {
+    .rail {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  const nav = document.getElementById("nav");
+  const bar = document.querySelector<HTMLElement>(".progress__bar");
+  const navLinks = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>("[data-navlink]"),
+  );
+  const railLinks = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>("[data-raillink]"),
+  );
+
+  // Single rAF loop; scroll only flags, never reads layout inside the handler.
+  let ticking = false;
+  function frame() {
+    ticking = false;
+    const y = window.scrollY;
+    const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
+    if (bar) bar.style.transform = `scaleX(${Math.min(1, y / max)})`;
+    nav?.classList.toggle("is-stuck", y > 40);
+  }
+  function onScroll() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(frame);
+    }
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  frame();
+
+  // Active-section highlighting for both nav and rail.
+  const sections = Array.from(document.querySelectorAll<HTMLElement>("section[id]"));
+  if (sections.length) {
+    const spy = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const id = e.target.id;
+          for (const a of navLinks)
+            a.classList.toggle("is-active", a.dataset.navlink === id);
+          for (const a of railLinks)
+            a.classList.toggle("is-active", a.dataset.raillink === id);
+        }
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 },
+    );
+    for (const s of sections) spy.observe(s);
+  }
+
+  // Persist the language choice at the moment the visitor picks it.
+  document
+    .querySelectorAll<HTMLAnchorElement>("[data-lang-switch]")
+    .forEach((a) => {
+      a.addEventListener("click", () => {
+        try {
+          localStorage.setItem("makkawi-lang", a.dataset.langSwitch || "ar");
+        } catch (e) {}
+      });
+    });
+</script>

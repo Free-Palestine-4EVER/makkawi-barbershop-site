@@ -1,0 +1,93 @@
+---
+import { COPY, type Lang } from "../data/copy";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+// Duplicated once so the loop is seamless; the copy is aria-hidden.
+const run = [...t.ticker, ...t.ticker];
+---
+
+<div class="ticker" role="presentation">
+  <div class="ticker__track">
+    {
+      [0, 1].map((copy) => (
+        <div class="ticker__set" aria-hidden={copy === 1 ? "true" : undefined}>
+          {run.slice(0, t.ticker.length).map((item) => (
+            <span class="ticker__item">
+              {item}
+              <i class="ticker__sep" aria-hidden="true" />
+            </span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .ticker {
+    position: relative;
+    overflow: hidden;
+    border-block: 1px solid var(--hairline);
+    background: var(--surface);
+    padding-block: 0.85rem;
+    /* fade the ends so the loop seam never reads as a hard cut */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+  .ticker__track {
+    display: flex;
+    inline-size: max-content;
+    /* Always LTR travel — the marquee is a graphic device, and reversing it
+       per-direction makes the seam visible. */
+    direction: ltr;
+    animation: ticker-run 34s linear infinite;
+  }
+  .ticker:hover .ticker__track {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker__track {
+      animation-duration: 90s;
+    }
+  }
+  @keyframes ticker-run {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+  .ticker__set {
+    display: flex;
+    align-items: center;
+  }
+  .ticker__item {
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(1.2rem, 3vw, 2.4rem);
+    padding-inline-end: clamp(1.2rem, 3vw, 2.4rem);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .ticker__sep {
+    inline-size: 5px;
+    block-size: 5px;
+    background: var(--accent);
+    transform: rotate(45deg);
+    flex: none;
+  }
+</style>

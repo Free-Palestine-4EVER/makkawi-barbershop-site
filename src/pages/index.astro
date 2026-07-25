@@ -1,0 +1,54 @@
+---
+/**
+ * Root route. Arabic is the default language; a previously chosen language is
+ * restored from localStorage. Every URL here is built from BASE_URL so the
+ * GitHub Pages project sub-path is always correct.
+ */
+import { COPY, DEFAULT_LANG } from "../data/copy";
+
+const BASE = import.meta.env.BASE_URL; // includes the trailing slash
+const fallback = `${BASE}${DEFAULT_LANG}/`;
+const t = COPY[DEFAULT_LANG];
+const canonical = new URL(fallback, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{t.title}</title>
+    <meta name="description" content={t.description} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={`${BASE}favicon.svg`} />
+    <meta http-equiv="refresh" content={`0; url=${fallback}`} />
+    <script is:inline define:vars={{ BASE, fallback }}>
+      (function () {
+        var lang = null;
+        try {
+          lang = localStorage.getItem("makkawi-lang");
+        } catch (e) {}
+        var to = lang === "en" || lang === "ar" ? BASE + lang + "/" : fallback;
+        location.replace(to + location.hash);
+      })();
+    </script>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #12100f;
+        color: #f2ede6;
+        font-family: system-ui, sans-serif;
+      }
+      a {
+        color: #d8a657;
+      }
+    </style>
+  </head>
+  <body>
+    <p><a href={fallback}>MAKKAWI BARBERSHOP — صالون مكاوي</a></p>
+  </body>
+</html>

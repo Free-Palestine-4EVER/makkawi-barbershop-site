@@ -1,0 +1,453 @@
+---
+import { COPY, type Lang } from "../data/copy";
+import { RATING, REVIEW_COUNT, MAPS_URL, REVIEW_URL } from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+
+// SVG ring geometry. 4.9 / 5 = 98% of the circle.
+const R = 132;
+const CIRC = 2 * Math.PI * R;
+const FILLED = CIRC * (RATING / 5);
+// 4.9 stars rendered honestly: 4 full + one clipped to 90%.
+const fullStars = Math.floor(RATING);
+const partial = RATING - fullStars;
+---
+
+<section class="trust" id="trust" data-trust>
+  <div class="trust__pin">
+    <div class="trust__inner shell">
+      <p class="eyebrow trust__eyebrow">{t.trustEyebrow}</p>
+      <h2 class="h2 trust__h2">{t.trustHeading}</h2>
+
+      <div class="trust__stage">
+        <div class="trust__ring">
+          <svg viewBox="0 0 300 300" aria-hidden="true" data-ring-svg>
+            <circle
+              class="trust__track"
+              cx="150"
+              cy="150"
+              r={R}
+              fill="none"
+              stroke-width="6"></circle>
+            <circle
+              class="trust__arc"
+              cx="150"
+              cy="150"
+              r={R}
+              fill="none"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-dasharray={`${FILLED} ${CIRC}`}
+              stroke-dashoffset={FILLED}
+              data-ring-arc></circle>
+          </svg>
+
+          <div class="trust__center">
+            <!-- Real values are server-rendered so a no-JS visitor sees the
+                 number; the counter zeroes them only once JS takes over. -->
+            <span class="trust__count numeral" data-count-to={REVIEW_COUNT}>{REVIEW_COUNT}</span>
+            <span class="trust__count-label">{t.trustReviewsLabel}</span>
+          </div>
+        </div>
+
+        <div class="trust__side">
+          <p class="trust__rating">
+            <span class="trust__rating-num numeral" data-count-to={RATING} data-decimals="1">{RATING.toFixed(1)}</span>
+            <span class="trust__rating-of">{t.trustOutOf}</span>
+          </p>
+
+          <div class="trust__stars" data-stars aria-hidden="true">
+            {
+              Array.from({ length: 5 }).map((_, i) => (
+                <span class="trust__star">
+                  <span
+                    class="trust__star-fill"
+                    style={`--fill:${i < fullStars ? 1 : i === fullStars ? partial : 0}`}
+                  >
+                    ★
+                  </span>
+                  <span class="trust__star-bg">★</span>
+                </span>
+              ))
+            }
+          </div>
+
+          <p class="trust__caption">{t.trustCaption}</p>
+          <p class="trust__links">
+            <a class="link" href={MAPS_URL} target="_blank" rel="noopener">{t.trustReadAll}</a>
+            <span class="trust__dot" aria-hidden="true"></span>
+            <a class="link" href={REVIEW_URL} target="_blank" rel="noopener">{t.trustLeave}</a>
+          </p>
+        </div>
+      </div>
+
+      <ul class="trust__craft" data-craft>
+        {
+          t.craft.map((c) => (
+            <li class="trust__craft-item">
+              <span class="trust__craft-mask">
+                <span class="trust__craft-inner">
+                  <strong>{c.title}</strong>
+                  <span>{c.line}</span>
+                </span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Tall scroll track; the inner panel pins for the duration of the reveal. */
+  .trust {
+    position: relative;
+    background: var(--bg);
+    block-size: 260svh;
+  }
+  .trust__pin {
+    position: sticky;
+    inset-block-start: 0;
+    block-size: 100svh;
+    display: grid;
+    align-items: center;
+    overflow: hidden;
+  }
+  .trust__inner {
+    inline-size: min(100%, 1440px);
+    padding-block: clamp(4rem, 8vh, 6rem);
+  }
+  .trust__h2 {
+    margin-block: 0.6rem clamp(1.5rem, 4vh, 2.8rem);
+  }
+
+  .trust__stage {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: center;
+  }
+
+  .trust__ring {
+    position: relative;
+    inline-size: min(78vw, 300px);
+    max-block-size: 42svh;
+    aspect-ratio: 1;
+    justify-self: center;
+  }
+  .trust__ring svg {
+    inline-size: 100%;
+    block-size: 100%;
+    /* start the arc at 12 o'clock and travel clockwise */
+    transform: rotate(-90deg);
+  }
+  .trust__track {
+    stroke: var(--hairline);
+  }
+  .trust__arc {
+    stroke: var(--accent-2);
+    transition: stroke 0.25s linear;
+  }
+  .trust__arc.is-flash {
+    stroke: var(--accent);
+  }
+
+  .trust__center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 0.4rem;
+    text-align: center;
+    padding-inline: 14%;
+  }
+  .trust__count {
+    font-size: clamp(3.2rem, 12vw, 5.4rem);
+    color: var(--text);
+  }
+  .trust__count-label {
+    font-size: var(--fs-eyebrow);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  :root[dir="rtl"] .trust__count-label {
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+
+  .trust__side {
+    display: grid;
+    gap: 0.7rem;
+    justify-items: start;
+  }
+  .trust__rating {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .trust__rating-num {
+    font-size: clamp(3.5rem, 11vw, 7rem);
+    color: var(--accent-2);
+  }
+  .trust__rating-of {
+    font-size: var(--fs-small);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  :root[dir="rtl"] .trust__rating-of {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .trust__stars {
+    display: flex;
+    gap: 0.18em;
+    font-size: clamp(1.3rem, 3.5vw, 1.9rem);
+    line-height: 1;
+  }
+  .trust__star {
+    position: relative;
+    display: inline-block;
+    color: rgba(242, 237, 230, 0.16);
+  }
+  .trust__star-bg {
+    display: block;
+  }
+  .trust__star-fill {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    overflow: hidden;
+    inline-size: calc(var(--fill) * 100%);
+    color: var(--accent-2);
+    white-space: nowrap;
+  }
+
+  .trust__caption {
+    font-size: var(--fs-small);
+    color: var(--text-dim);
+    max-inline-size: 42ch;
+    margin-block-start: 0.4rem;
+  }
+  .trust__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: var(--fs-small);
+  }
+  .trust__dot {
+    inline-size: 4px;
+    block-size: 4px;
+    background: var(--accent);
+    transform: rotate(45deg);
+  }
+
+  .trust__craft {
+    display: grid;
+    gap: 0.6rem;
+    margin-block-start: clamp(1.5rem, 4vh, 2.6rem);
+    padding-block-start: 1.2rem;
+    border-block-start: 1px solid var(--hairline);
+  }
+  .trust__craft-mask {
+    display: block;
+    overflow: hidden;
+  }
+  .trust__craft-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.7rem;
+    will-change: transform;
+  }
+  .trust__craft-inner strong {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-stretch: 112%;
+    font-size: clamp(1rem, 1.4vw + 0.5rem, 1.35rem);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  :root[dir="rtl"] .trust__craft-inner strong {
+    font-family: var(--font-body);
+    font-stretch: normal;
+    text-transform: none;
+  }
+  .trust__craft-inner span {
+    font-size: var(--fs-small);
+    color: var(--text-dim);
+  }
+
+  @media (min-width: 900px) {
+    .trust__stage {
+      grid-template-columns: minmax(0, 360px) 1fr;
+      gap: clamp(2.5rem, 6vw, 5rem);
+    }
+    .trust__ring {
+      justify-self: start;
+      inline-size: 360px;
+      max-block-size: none;
+    }
+    .trust__craft {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+    .trust__craft-inner {
+      display: grid;
+      gap: 0.3rem;
+    }
+  }
+
+  /* On wide screens the side splits again, so the numeral and the sourcing
+     note each get their own column instead of leaving half the row empty. */
+  @media (min-width: 1180px) {
+    .trust__side {
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: clamp(2.5rem, 5vw, 4.5rem);
+      align-items: center;
+    }
+    .trust__rating {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: end;
+    }
+    .trust__stars {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: start;
+    }
+    .trust__caption {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: end;
+      margin-block-start: 0;
+      font-size: var(--fs-body);
+      max-inline-size: 34ch;
+    }
+    .trust__links {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: start;
+    }
+  }
+
+  /* Reduced motion keeps the signature moment — it just travels less. */
+  @media (prefers-reduced-motion: reduce) {
+    .trust {
+      block-size: 130svh;
+    }
+  }
+
+  html.js .trust:not(.is-in) .trust__craft-inner {
+    transform: translateY(110%);
+  }
+  html.js .trust:not(.is-in) .trust__star {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { animate, inView, scroll, stagger } from "motion";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const section = document.querySelector<HTMLElement>("[data-trust]");
+  const arc = document.querySelector<SVGCircleElement>("[data-ring-arc]");
+  const counters = document.querySelectorAll<HTMLElement>("[data-count-to]");
+  const stars = document.querySelectorAll<HTMLElement>(".trust__star");
+  const craft = document.querySelectorAll<HTMLElement>(".trust__craft-inner");
+
+  const FILLED = arc ? parseFloat(arc.getAttribute("stroke-dasharray")!.split(" ")[0]) : 0;
+
+  let flashed = false;
+  function paint(p: number) {
+    if (!arc) return;
+    const eased = Math.min(1, Math.max(0, p));
+    arc.style.strokeDashoffset = String(FILLED * (1 - eased));
+
+    // As the ring completes it snaps red for ~200ms, then settles to brass.
+    if (eased > 0.985 && !flashed) {
+      flashed = true;
+      arc.classList.add("is-flash");
+      setTimeout(() => arc.classList.remove("is-flash"), 220);
+    }
+    if (eased < 0.9) flashed = false;
+
+    for (const el of counters) {
+      const to = parseFloat(el.dataset.countTo || "0");
+      const dec = parseInt(el.dataset.decimals || "0", 10);
+      el.textContent = (to * eased).toFixed(dec);
+    }
+  }
+  paint(0);
+
+  if (section) {
+    // The ring draw + count-up are scrubbed by scroll progress through the
+    // pinned track. scroll() returns a PLAIN cleanup function.
+    const stopScrub = scroll(
+      (progress: number) => {
+        // Complete the reveal partway through the track so the finished state
+        // holds on screen before the section releases. Reduced motion resolves
+        // it almost immediately rather than dropping the moment.
+        paint(progress / (reduce ? 0.18 : 0.65));
+      },
+      { target: section, offset: ["start start", "end end"] },
+    );
+    window.addEventListener("pagehide", () => stopScrub(), { once: true });
+
+    // Stars stagger in behind the ring; the craft lines wipe up beneath.
+    inView(
+      section,
+      () => {
+        section.classList.add("is-in");
+        if (stars.length) {
+          animate(
+            stars,
+            { opacity: [0, 1], transform: ["translateY(10px)", "translateY(0px)"] },
+            {
+              duration: reduce ? 0.2 : 0.5,
+              delay: stagger(reduce ? 0.02 : 0.09, { startDelay: reduce ? 0 : 0.25 }),
+              ease: "easeOut",
+            },
+          );
+        }
+        if (craft.length) {
+          animate(
+            craft,
+            { transform: ["translateY(110%)", "translateY(0%)"] },
+            {
+              duration: reduce ? 0.25 : 0.75,
+              delay: stagger(reduce ? 0.03 : 0.12, { startDelay: reduce ? 0.05 : 0.5 }),
+              ease: [0.16, 1, 0.3, 1],
+            },
+          );
+        }
+      },
+      { amount: 0.2 },
+    );
+  }
+
+  // If scroll-linking is unavailable for any reason, the numbers must still
+  // resolve — a visitor should never be left looking at "0".
+  window.addEventListener(
+    "load",
+    () => {
+      setTimeout(() => {
+        const c = document.querySelector<HTMLElement>(".trust__count");
+        if (c && c.textContent === "0" && section) {
+          const r = section.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0) paint(1);
+        }
+      }, 1200);
+    },
+    { once: true },
+  );
+</script>

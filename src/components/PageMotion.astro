@@ -1,0 +1,66 @@
+---
+// Page-wide interaction wiring. Rendered LAST so every [data-magnet] on the
+// page already exists in the DOM when this script runs.
+---
+
+<script>
+  // Magnetic pull on the primary CTAs — desktop pointers only, never on
+  // touch, where it would fight with scrolling.
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  if (fine.matches) {
+    const MAX = 14;
+    const STRENGTH = 0.32;
+
+    document.querySelectorAll<HTMLElement>("[data-magnet]").forEach((el) => {
+      let raf = 0;
+      let tx = 0;
+      let ty = 0;
+
+      const apply = () => {
+        raf = 0;
+        el.style.transform = `translate(${tx}px, ${ty}px)`;
+      };
+
+      el.addEventListener(
+        "pointermove",
+        (e) => {
+          const r = el.getBoundingClientRect();
+          tx = clamp((e.clientX - (r.left + r.width / 2)) * STRENGTH);
+          ty = clamp((e.clientY - (r.top + r.height / 2)) * STRENGTH);
+          if (!raf) raf = requestAnimationFrame(apply);
+        },
+        { passive: true },
+      );
+
+      el.addEventListener("pointerleave", () => {
+        tx = 0;
+        ty = 0;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+    });
+
+    function clamp(v: number) {
+      return Math.max(-MAX, Math.min(MAX, v));
+    }
+  }
+
+  // Smooth in-page anchor scrolling that respects reduced motion and the
+  // fixed header height.
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+    a.addEventListener("click", (e) => {
+      const id = a.getAttribute("href")!.slice(1);
+      if (!id) return;
+      const target = document.getElementById(id);
+      if (!target) return;
+      e.preventDefault();
+      const nav = document.getElementById("nav");
+      const offset = (nav?.offsetHeight ?? 0) + 8;
+      window.scrollTo({
+        top: target.getBoundingClientRect().top + window.scrollY - offset,
+        behavior: reduce ? "auto" : "smooth",
+      });
+      history.replaceState(null, "", `#${id}`);
+    });
+  });
+</script>

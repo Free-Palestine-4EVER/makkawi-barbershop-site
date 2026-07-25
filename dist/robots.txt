@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://free-palestine-4ever.github.io/makkawi-barbershop-site/sitemap.xml

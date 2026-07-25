@@ -1,0 +1,481 @@
+---
+import { Image } from "astro:assets";
+import { photos } from "../data/photos";
+import { COPY, SERVICES, waService, type Lang } from "../data/copy";
+import { waLink } from "../data/business";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = COPY[lang];
+---
+
+<section class="svc" id="services">
+  <div class="svc__head shell">
+    <div>
+      <p class="eyebrow">{t.servicesEyebrow}</p>
+      <h2 class="h2 svc__h2">{t.servicesHeading}</h2>
+    </div>
+    <p class="svc__note lede">{t.servicesNote}</p>
+  </div>
+
+  <!-- Index-row list: the number carries the composition, the photo appears
+       as a cursor-tracked preview on desktop and as an inline plate on touch. -->
+  <ol class="svc__list shell" data-svc-list>
+    {
+      SERVICES.map((s, i) => (
+        <li class="svc__row" data-svc-row data-photo={s.photo ?? ""}>
+          <a
+            class="svc__link"
+            href={waLink(waService(s.ar, s.en))}
+            target="_blank"
+            rel="noopener"
+            aria-label={`${lang === "ar" ? s.ar : s.en} — ${t.askPrice}`}
+          >
+            <span class="svc__idx numeral">{String(i + 1).padStart(2, "0")}</span>
+
+            <span class="svc__text">
+              <span class="svc__name">{lang === "ar" ? s.ar : s.en}</span>
+              <span class="svc__alt">{lang === "ar" ? s.en : s.ar}</span>
+              <span class="svc__line">{lang === "ar" ? s.lineAr : s.lineEn}</span>
+            </span>
+
+            {s.photo ? (
+              <span class="svc__thumb duo" aria-hidden="true">
+                <Image
+                  src={photos[s.photo]}
+                  alt=""
+                  widths={[220, 440]}
+                  sizes="220px"
+                  loading="lazy"
+                  format="webp"
+                  quality={70}
+                />
+              </span>
+            ) : (
+              <span class="svc__thumb svc__thumb--mark" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.2">
+                  <circle cx="12" cy="37" r="6" />
+                  <circle cx="36" cy="37" r="6" />
+                  <path d="M16 33 38 8M32 33 10 8" stroke-linecap="round" />
+                </svg>
+              </span>
+            )}
+
+            <span class="svc__chip">
+              <span>{t.askPrice}</span>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12.04 2C6.6 2 2.18 6.42 2.18 11.86c0 1.9.53 3.68 1.46 5.2L2 22l5.09-1.6a9.8 9.8 0 0 0 4.95 1.33h.01c5.44 0 9.86-4.42 9.86-9.86S17.48 2 12.04 2Zm5.77 14.03c-.24.68-1.4 1.3-1.94 1.35-.5.05-1.13.07-1.82-.11a15.4 15.4 0 0 1-1.65-.62c-2.9-1.26-4.8-4.2-4.95-4.4-.14-.2-1.19-1.58-1.19-3.02 0-1.43.75-2.13 1.02-2.42.27-.29.58-.36.78-.36h.56c.18 0 .42-.07.66.5.24.59.82 2.02.89 2.17.07.14.12.31.02.5-.1.2-.15.32-.29.49-.15.17-.31.38-.44.51-.15.14-.3.3-.13.59.17.29.76 1.25 1.62 2.02 1.12.99 2.06 1.3 2.35 1.45.29.14.46.12.63-.07.17-.2.73-.85.93-1.14.19-.29.39-.24.65-.15.27.1 1.69.8 1.98.94.29.15.48.22.55.34.07.12.07.68-.17 1.36Z" />
+              </svg>
+            </span>
+
+            <span class="svc__sweep" aria-hidden="true"></span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+
+  <!-- Desktop-only cursor preview. Populated from the row's photo. -->
+  <div class="svc__preview" data-svc-preview aria-hidden="true">
+    {
+      SERVICES.filter((s) => s.photo).map((s) => (
+        <span class="svc__preview-img" data-preview-for={s.photo}>
+          <Image
+            src={photos[s.photo!]}
+            alt=""
+            widths={[340, 680]}
+            sizes="340px"
+            loading="lazy"
+            format="webp"
+            quality={74}
+          />
+        </span>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .svc {
+    position: relative;
+    background: var(--bg);
+    padding-block: clamp(4rem, 9vw, 8rem);
+  }
+
+  .svc__head {
+    display: grid;
+    gap: 1.4rem;
+    margin-block-end: clamp(2rem, 5vw, 3.5rem);
+  }
+  .svc__h2 {
+    margin-block-start: 0.7rem;
+  }
+  .svc__note {
+    font-size: var(--fs-small);
+    max-inline-size: 34ch;
+    align-self: end;
+  }
+  @media (min-width: 900px) {
+    .svc__head {
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 3rem;
+    }
+    .svc__note {
+      text-align: end;
+    }
+  }
+
+  .svc__list {
+    display: grid;
+    border-block-start: 1px solid var(--hairline);
+  }
+  .svc__row {
+    border-block-end: 1px solid var(--hairline);
+  }
+
+  .svc__link {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "idx text thumb" "chip chip chip";
+    align-items: center;
+    gap: clamp(0.9rem, 2.5vw, 2rem);
+    padding-block: clamp(1.1rem, 2.4vw, 1.9rem);
+    min-block-size: 44px;
+    isolation: isolate;
+  }
+
+  /* red wipe fills the row from the inline-start edge on hover */
+  .svc__sweep {
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc(var(--gutter) * -1);
+    z-index: -1;
+    background: linear-gradient(
+      to var(--sweep-dir, right),
+      rgba(225, 29, 51, 0.16),
+      rgba(225, 29, 51, 0)
+    );
+    transform: scaleX(0);
+    transform-origin: var(--o-start);
+    transition: transform 0.55s var(--ease);
+  }
+  :root[dir="rtl"] .svc__sweep {
+    --sweep-dir: left;
+  }
+  .svc__link:hover .svc__sweep,
+  .svc__link:focus-visible .svc__sweep {
+    transform: scaleX(1);
+  }
+
+  .svc__idx {
+    grid-area: idx;
+    font-size: clamp(1.1rem, 1.6vw, 1.5rem);
+    color: var(--text-dim);
+    transition:
+      color 0.4s var(--ease),
+      transform 0.5s var(--ease);
+  }
+  .svc__link:hover .svc__idx {
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .svc__text {
+    grid-area: text;
+    display: grid;
+    gap: 0.15rem;
+    transition: transform 0.5s var(--ease);
+  }
+  .svc__link:hover .svc__text {
+    transform: translateX(8px);
+  }
+  :root[dir="rtl"] .svc__link:hover .svc__text {
+    transform: translateX(-8px);
+  }
+
+  .svc__name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-stretch: 115%;
+    font-size: clamp(1.35rem, 2.4vw + 0.5rem, 2.7rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
+  }
+  :root[dir="rtl"] .svc__name {
+    font-family: var(--font-body);
+    font-stretch: normal;
+    text-transform: none;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+  .svc__alt {
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--accent-2);
+    letter-spacing: 0.04em;
+  }
+  .svc__line {
+    font-size: var(--fs-small);
+    color: var(--text-dim);
+    max-inline-size: 44ch;
+    margin-block-start: 0.2rem;
+  }
+
+  .svc__thumb {
+    grid-area: thumb;
+    inline-size: clamp(64px, 14vw, 96px);
+    aspect-ratio: 1;
+    flex: none;
+    overflow: hidden;
+    border-radius: 2px;
+    --duo: 0.85;
+  }
+  .svc__thumb :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+  .svc__link:hover .svc__thumb {
+    --duo: 0;
+  }
+  .svc__thumb--mark {
+    display: grid;
+    place-items: center;
+    background: var(--surface);
+    color: var(--accent-2);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .svc__thumb--mark svg {
+    inline-size: 46%;
+    block-size: 46%;
+    transition: transform 0.5s var(--ease);
+  }
+  .svc__link:hover .svc__thumb--mark svg {
+    transform: rotate(-12deg);
+  }
+
+  .svc__chip {
+    grid-area: chip;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-block-start: 0.9rem;
+    padding: 0.5rem 0.9rem;
+    min-block-size: 40px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+    border-radius: 999px;
+    transition:
+      background-color 0.35s var(--ease),
+      box-shadow 0.35s var(--ease),
+      transform 0.35s var(--ease);
+  }
+  .svc__chip svg {
+    inline-size: 1rem;
+    block-size: 1rem;
+    color: #4ad07d;
+  }
+  .svc__link:hover .svc__chip {
+    background: #1d9c53;
+    box-shadow: inset 0 0 0 1px #1d9c53;
+    transform: translateY(-2px);
+  }
+  .svc__link:hover .svc__chip svg {
+    color: #fff;
+  }
+
+  @media (min-width: 900px) {
+    .svc__link {
+      grid-template-columns: auto 1fr auto auto;
+      grid-template-areas: "idx text chip thumb";
+      gap: clamp(1.5rem, 3vw, 3rem);
+    }
+    .svc__chip {
+      justify-self: end;
+      margin-block-start: 0;
+      opacity: 0;
+      transform: translateY(6px);
+      transition:
+        opacity 0.35s var(--ease),
+        transform 0.35s var(--ease),
+        background-color 0.35s var(--ease);
+    }
+    .svc__link:hover .svc__chip,
+    .svc__link:focus-visible .svc__chip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* On desktop the inline thumb gives way to the cursor-tracked preview. */
+    .svc.has-pointer .svc__thumb {
+      display: none;
+    }
+  }
+
+  /* ---- cursor preview ---- */
+  .svc__preview {
+    display: none;
+    position: fixed;
+    /* Deliberately PHYSICAL, not logical: the script positions this in
+       physical viewport pixels, and `inset-inline-start` would anchor it to
+       the right edge in RTL and translate it off-screen. */
+    top: 0;
+    left: 0;
+    right: auto;
+    inline-size: clamp(200px, 20vw, 320px);
+    aspect-ratio: 4 / 5;
+    z-index: 90;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .svc.has-pointer .svc__preview {
+    display: block;
+  }
+  .svc__preview-img {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.35s var(--ease);
+  }
+  .svc__preview-img.is-shown {
+    opacity: 1;
+  }
+  .svc__preview-img :global(img) {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  html.js .svc__list:not(.is-in) .svc__row {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { animate, inView, stagger } from "motion";
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const list = document.querySelector<HTMLElement>("[data-svc-list]");
+  const section = document.querySelector<HTMLElement>(".svc");
+
+  // Observe the LIST (the shared parent), so the rows stagger together once.
+  if (list) {
+    inView(
+      list,
+      () => {
+        list.classList.add("is-in");
+        animate(
+          list.querySelectorAll(".svc__row"),
+          { opacity: [0, 1], transform: ["translateY(26px)", "translateY(0px)"] },
+          {
+            duration: reduce ? 0.28 : 0.65,
+            delay: stagger(reduce ? 0.015 : 0.07),
+            ease: "easeOut",
+          },
+        );
+      },
+      { amount: 0.15 },
+    );
+  }
+
+  // Cursor-tracked photo preview — desktop pointers only, never on touch.
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
+  const preview = document.querySelector<HTMLElement>("[data-svc-preview]");
+
+  if (fine.matches && section && preview) {
+    section.classList.add("has-pointer");
+
+    const slides = new Map<string, HTMLElement>();
+    preview
+      .querySelectorAll<HTMLElement>("[data-preview-for]")
+      .forEach((el) => slides.set(el.dataset.previewFor || "", el));
+
+    let tx = 0,
+      ty = 0,
+      cx = 0,
+      cy = 0,
+      shown = false,
+      raf = 0;
+
+    const loop = () => {
+      cx += (tx - cx) * 0.14;
+      cy += (ty - cy) * 0.14;
+      preview.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+      raf = requestAnimationFrame(loop);
+    };
+
+    // The preview tracks the cursor vertically but parks in the empty gutter
+    // between the service name and the pricing chip, so it never covers the
+    // row it is illustrating. Mirrored for RTL.
+    const rtl = document.documentElement.dir === "rtl";
+    section.addEventListener(
+      "pointermove",
+      (e) => {
+        const w = preview.offsetWidth;
+        const h = preview.offsetHeight;
+        const lane = window.innerWidth * (rtl ? 0.34 : 0.66);
+        tx = lane - w / 2;
+        ty = Math.min(
+          window.innerHeight - h - 12,
+          Math.max(12, e.clientY - h / 2),
+        );
+        if (!shown) {
+          cx = tx;
+          cy = ty;
+        }
+      },
+      { passive: true },
+    );
+
+    const show = (key: string, row: HTMLElement) => {
+      slides.forEach((el, k) => el.classList.toggle("is-shown", k === key));
+      if (!shown) {
+        // pointerenter can land before any pointermove; seed the position from
+        // the row itself so the preview never appears at the viewport corner.
+        const r = row.getBoundingClientRect();
+        const w = preview.offsetWidth || 288;
+        const h = preview.offsetHeight || 360;
+        tx = window.innerWidth * (rtl ? 0.34 : 0.66) - w / 2;
+        ty = Math.min(
+          window.innerHeight - h - 12,
+          Math.max(12, r.top + r.height / 2 - h / 2),
+        );
+        cx = tx;
+        cy = ty;
+      }
+      if (!shown) {
+        shown = true;
+        raf = requestAnimationFrame(loop);
+        // opacity only — the rAF loop owns `transform` on this element.
+        animate(preview, { opacity: [0, 1] }, {
+          duration: reduce ? 0.12 : 0.35,
+          ease: "easeOut",
+        });
+      }
+    };
+    const hide = () => {
+      if (!shown) return;
+      shown = false;
+      cancelAnimationFrame(raf);
+      animate(preview, { opacity: 0 }, { duration: reduce ? 0.1 : 0.25 });
+    };
+
+    section.querySelectorAll<HTMLElement>("[data-svc-row]").forEach((row) => {
+      const key = row.dataset.photo || "";
+      row.addEventListener("pointerenter", () => (key ? show(key, row) : hide()));
+    });
+    section.addEventListener("pointerleave", hide);
+  }
+</script>

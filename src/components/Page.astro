@@ -1,0 +1,41 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "./Nav.astro";
+import Hero from "./Hero.astro";
+import Ticker from "./Ticker.astro";
+import About from "./About.astro";
+import Services from "./Services.astro";
+import Gallery from "./Gallery.astro";
+import Trust from "./Trust.astro";
+import Location from "./Location.astro";
+import Contact from "./Contact.astro";
+import Footer from "./Footer.astro";
+import PageMotion from "./PageMotion.astro";
+import type { Lang } from "../data/copy";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+---
+
+<Base lang={lang}>
+  <Nav lang={lang} />
+  <main id="main">
+    <Hero lang={lang} />
+    <Ticker lang={lang} />
+    <About lang={lang} />
+    <!-- the awning angle as a structural divider between sections -->
+    <div class="wedge" style="--fill: var(--bg)" aria-hidden="true"></div>
+    <Services lang={lang} />
+    <div class="wedge wedge--up" style="--fill: var(--surface)" aria-hidden="true"></div>
+    <Gallery lang={lang} />
+    <div class="wedge" style="--fill: var(--bg)" aria-hidden="true"></div>
+    <Trust lang={lang} />
+    <Location lang={lang} />
+    <div class="wedge wedge--up" style="--fill: var(--surface)" aria-hidden="true"></div>
+    <Contact lang={lang} />
+  </main>
+  <Footer lang={lang} />
+  <PageMotion />
+</Base>
